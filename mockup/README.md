@@ -29,7 +29,6 @@ python3 -m http.server 8765
 
 - **Trader allocation bar** — €420 / €500 deployed (bot budget cap)
 - **Trader P&L cards** — unrealized, realized, win rate (tagged fills only)
-- **Account total row** — full Bitvavo balance vs non-trader (manual) portion
 - **Trader holdings table** — crypto markets with `advisor-*` order tags
 - **Crypto suggestions** — event types (etf_flow, regulation), source quality (confirmed / rumor)
 - **Watchlist** — `BTC-EUR`, `ETH-EUR`, etc.

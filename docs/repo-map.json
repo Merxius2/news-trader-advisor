@@ -275,7 +275,6 @@
       { "selector": ".trader-badge", "purpose": "trader allocation cap badge in sidebar" },
       { "selector": ".allocation-bar-wrap", "purpose": "deployed EUR vs allocation cap progress bar" },
       { "selector": ".pnl-grid.highlight-section", "purpose": "trader P&L cards — bot performance only" },
-      { "selector": ".pnl-grid.account", "purpose": "account total row — manual + bot informational" },
       { "selector": ".tag-advisor", "purpose": "advisor-* order tag on trader fills" },
       { "selector": ".account-note", "purpose": "manual holdings on same account excluded from trader qty" }
     ],
