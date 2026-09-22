@@ -228,14 +228,14 @@
   },
   "mockup_ui": {
     "ibkr": {
-      "file": "mockup/dashboard.html",
+      "file": "mockup/dashboard-ibkr.html",
       "fork": "ibkr_stocks",
       "plan": "docs/PLAN.md",
       "status": "exists",
       "phase": "done"
     },
     "bitvavo": {
-      "file": "mockup/dashboard-bitvavo.html",
+      "file": "mockup/dashboard.html",
       "fork": "bitvavo_crypto",
       "plan": "docs/PLAN-bitvavo.md",
       "status": "exists",
@@ -280,7 +280,7 @@
       { "selector": ".account-note", "purpose": "manual holdings on same account excluded from trader qty" }
     ],
     "bitvavo_maps_to_templates": {
-      "templates/dashboard.html": "Bitvavo fork phase 2 — replicate dashboard-bitvavo.html layout",
+      "templates/dashboard.html": "Bitvavo fork phase 2 — replicate mockup/dashboard.html layout",
       "templates/base.html": "shared sidebar, trader badge, allocation status panel"
     }
   },
@@ -327,14 +327,14 @@
       "phase": "done",
       "files": {
         "dashboard.html": {
+          "purpose": "Bitvavo/crypto dashboard UI — trader allocation + sub-ledger (default on mini-PC)",
+          "symbols": "see mockup_ui.bitvavo + mockup_ui.bitvavo_sections",
+          "read_when": "ui_work_bitvavo"
+        },
+        "dashboard-ibkr.html": {
           "purpose": "IBKR/stocks dashboard UI reference",
           "symbols": "see mockup_ui.ibkr",
           "read_when": "ui_work_ibkr"
-        },
-        "dashboard-bitvavo.html": {
-          "purpose": "Bitvavo/crypto dashboard UI — trader allocation + sub-ledger",
-          "symbols": "see mockup_ui.bitvavo + mockup_ui.bitvavo_sections",
-          "read_when": "ui_work_bitvavo"
         },
         "README.md": { "purpose": "serve mockup locally", "read_when": "preview_ui" }
       }
@@ -581,7 +581,8 @@
     "deploy_trigger_logs": "journalctl -u news-trader-advisor-deploy.service -n 20",
     "mockup_preview": "cd mockup && python3 -m http.server 8765",
     "mockup_url": "http://localhost:8765/dashboard.html",
-    "mockup_bitvavo_url": "http://localhost:8765/dashboard-bitvavo.html",
+    "mockup_ibkr_url": "http://localhost:8765/dashboard-ibkr.html",
+    "mockup_bitvavo_url": "http://localhost:8765/dashboard.html",
     "planned_cli": {
       "help": "python -m src.main --help",
       "run_once": "python -m src.main run-once",

@@ -162,7 +162,7 @@ Validate with Pydantic; retry once on parse failure.
 
 ## 7. Dashboard (mockup exists)
 
-Static mockup: [`mockup/dashboard.html`](../mockup/dashboard.html) — dark theme, sample data.
+Static mockup: [`mockup/dashboard-ibkr.html`](../mockup/dashboard-ibkr.html) — dark theme, sample data.
 
 ### Pages
 
@@ -375,7 +375,7 @@ server:
 
 | Asset | Location | Status |
 |---|---|---|
-| Dashboard mockup | `mockup/dashboard.html` | Done — static HTML, sample data |
+| Dashboard mockup | `mockup/dashboard-ibkr.html` | Done — static HTML, sample data |
 | Mockup README | `mockup/README.md` | Done |
 | Backend / API / scheduler | — | Not started |
 | IBKR integration | — | Not started |

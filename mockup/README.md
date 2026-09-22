@@ -6,23 +6,23 @@ Static HTML previews of the advisor dashboard (sample data only).
 
 | File | Variant | Plan |
 |---|---|---|
-| [`dashboard.html`](dashboard.html) | IBKR / stocks | [`docs/PLAN.md`](../docs/PLAN.md) |
-| [`dashboard-bitvavo.html`](dashboard-bitvavo.html) | Bitvavo / crypto | [`docs/PLAN-bitvavo.md`](../docs/PLAN-bitvavo.md) |
+| [`dashboard.html`](dashboard.html) | Bitvavo / crypto (default on mini-PC) | [`docs/PLAN-bitvavo.md`](../docs/PLAN-bitvavo.md) |
+| [`dashboard-ibkr.html`](dashboard-ibkr.html) | IBKR / stocks | [`docs/PLAN.md`](../docs/PLAN.md) |
 
 ## Open locally
 
 ```bash
 # From this directory
-open dashboard-bitvavo.html   # macOS — Bitvavo fork
-xdg-open dashboard-bitvavo.html  # Linux
+open dashboard.html   # macOS — Bitvavo fork (default)
+xdg-open dashboard.html  # Linux
 ```
 
 Or serve:
 
 ```bash
 python3 -m http.server 8765
-# IBKR:    http://localhost:8765/dashboard.html
-# Bitvavo: http://localhost:8765/dashboard-bitvavo.html
+# Bitvavo: http://localhost:8765/dashboard.html
+# IBKR:    http://localhost:8765/dashboard-ibkr.html
 ```
 
 ## Bitvavo mockup highlights

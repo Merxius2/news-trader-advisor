@@ -67,7 +67,7 @@ The dashboard runs on the mini-PC and is reachable on your LAN.
 
 | Phase | URL (from Mac) | What runs |
 |-------|----------------|-----------|
-| Now (mockup) | `http://192.168.1.30:8080/dashboard.html` | Static mockup via `scripts/serve-dashboard.sh` |
+| Now (mockup) | `http://192.168.1.30:8080/dashboard.html` | Bitvavo mockup via `scripts/serve-dashboard.sh` (IBKR variant: `/dashboard-ibkr.html`) |
 | Phase 2+ | same host/port | FastAPI app (auto-switches when `src/web/app.py` exists) |
 
 ### Install / enable (one-time on mini-PC)

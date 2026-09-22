@@ -125,7 +125,7 @@ If unsure whether to update: **update it**. Agents rely on this file every sessi
 | `docs/repo-map.json` | Symbol index, API routes, DB models, UI map — load every session |
 | `docs/PLAN.md` | Full architecture and phase plan (read sections on demand) |
 | `.instructions` | This file — workflow rules |
-| `mockup/dashboard.html` | Dashboard UI target (`mockup_ui` summarizes structure) |
+| `mockup/dashboard.html` | Bitvavo dashboard UI target (`mockup_ui.bitvavo`; IBKR: `mockup/dashboard-ibkr.html`) |
 | `README.md` | Human-facing overview |
 
 ## Mini-PC deployment (required workflow)
