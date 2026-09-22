@@ -10,7 +10,10 @@ Local news-driven trading **advisor** for your mini-PC: Ollama analyzes headline
 
 Agents should load [`.instructions`](.instructions) and [`docs/repo-map.json`](docs/repo-map.json) at session start. Cursor auto-loads [`AGENTS.md`](AGENTS.md), which points to both.
 
+After changes merge to `main`, **update the mini-PC** — see [`docs/mini-pc.md`](docs/mini-pc.md) or run `./scripts/sync-mini-pc.sh`.
+
 - [`docs/PLAN.md`](docs/PLAN.md) — full project handoff: architecture, phases, schema, guardrails
+- [`docs/mini-pc.md`](docs/mini-pc.md) — clone and sync repo on the mini-PC
 - [`mockup/dashboard.html`](mockup/dashboard.html) — static dashboard preview (sample data)
 - [`mockup/README.md`](mockup/README.md) — how to open the mockup locally
 

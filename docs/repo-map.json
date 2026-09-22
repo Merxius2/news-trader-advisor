@@ -1,6 +1,18 @@
 {
   "schema_version": "1.1",
   "last_updated": "2026-09-22",
+  "deployment": {
+    "runtime_target": "mini-pc",
+    "remote": "https://github.com/Merxius2/news-trader-advisor.git",
+    "default_clone_path": "~/news-trader-advisor",
+    "branch": "main",
+    "docs": "docs/mini-pc.md",
+    "sync_script": "scripts/sync-mini-pc.sh",
+    "clone_script": "scripts/clone-on-mini-pc.sh",
+    "config_example": "config/mini-pc.env.example",
+    "config_local": "config/mini-pc.env",
+    "workflow": "After merge to main: git pull on mini-PC OR run scripts/sync-mini-pc.sh from dev machine"
+  },
   "repo": {
     "name": "news-trader-advisor",
     "description": "Local news-driven trading advisor: Ollama analyzes headlines, IBKR paper tracks P&L, web dashboard. Paper only in v1.",
@@ -237,7 +249,16 @@
       "status": "exists",
       "files": {
         "PLAN.md": { "purpose": "full handoff: architecture, phases 0-7, schema, guardrails", "read_when": "implementation_planning" },
-        "repo-map.json": { "purpose": "this file; symbol index + structure for agents", "read_when": "every_session" }
+        "repo-map.json": { "purpose": "this file; symbol index + structure for agents", "read_when": "every_session" },
+        "mini-pc.md": { "purpose": "clone and sync repo on mini-PC; runtime deployment guide", "read_when": "deploying_or_after_merge_to_main" }
+      }
+    },
+    "scripts": {
+      "status": "exists",
+      "purpose": "deployment and maintenance scripts",
+      "files": {
+        "sync-mini-pc.sh": { "purpose": "SSH to mini-PC and git pull main", "requires": "config/mini-pc.env", "run_from": "dev machine" },
+        "clone-on-mini-pc.sh": { "purpose": "first-time git clone on mini-PC", "run_from": "mini-pc" }
       }
     },
     "mockup": {
@@ -253,12 +274,14 @@
       }
     },
     "config": {
-      "status": "planned",
+      "status": "partial",
       "phase": "0",
       "files": {
-        "watchlist.yaml": { "schema": { "tickers": [{ "symbol": "str", "notes": "str?", "sector": "str?" }] } },
-        "sources.yaml": { "schema": { "rss": ["url"], "finnhub": { "enabled": "bool", "symbols_from_watchlist": "bool" } } },
-        "settings.yaml": { "schema_ref": "docs/PLAN.md#12-config-defaults-suggested" }
+        "mini-pc.env.example": { "status": "exists", "purpose": "SSH host + repo path template for sync-mini-pc.sh" },
+        "mini-pc.env": { "status": "local_only", "gitignored": true, "purpose": "actual mini-PC SSH config" },
+        "watchlist.yaml": { "status": "planned", "schema": { "tickers": [{ "symbol": "str", "notes": "str?", "sector": "str?" }] } },
+        "sources.yaml": { "status": "planned", "schema": { "rss": ["url"], "finnhub": { "enabled": "bool", "symbols_from_watchlist": "bool" } } },
+        "settings.yaml": { "status": "planned", "schema_ref": "docs/PLAN.md#12-config-defaults-suggested" }
       }
     },
     "src": {
@@ -482,6 +505,9 @@
     "7": { "name": "live_opt_in", "status": "future" }
   },
   "commands": {
+    "mini_pc_clone": "bash scripts/clone-on-mini-pc.sh ~/news-trader-advisor",
+    "mini_pc_pull_local": "cd ~/news-trader-advisor && git pull --ff-only origin main",
+    "mini_pc_sync_remote": "./scripts/sync-mini-pc.sh",
     "mockup_preview": "cd mockup && python3 -m http.server 8765",
     "mockup_url": "http://localhost:8765/dashboard.html",
     "planned_cli": {
@@ -510,9 +536,11 @@
     "config_defaults": ["config/settings.yaml", "Settings"],
     "pipeline_orchestration": ["IngestPipeline", "SchedulerService", "src/pipeline.py"],
     "implementation_order": ["phases", "docs/PLAN.md#18"],
-    "agent_workflow": [".instructions", "AGENTS.md", "symbol_index"]
+    "agent_workflow": [".instructions", "AGENTS.md", "symbol_index"],
+    "mini_pc_deployment": ["deployment", "docs/mini-pc.md", "scripts/sync-mini-pc.sh", "scripts/clone-on-mini-pc.sh"]
   },
   "update_triggers": [
+    "deployment or mini-PC sync procedure changed",
     "new top-level directory or package added",
     "file moved or renamed",
     "new class, function, method, route, or pydantic model added/changed/removed",

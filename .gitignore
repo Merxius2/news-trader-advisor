@@ -1,4 +1,5 @@
 .env
+config/mini-pc.env
 .venv/
 venv/
 __pycache__/

@@ -128,9 +128,36 @@ If unsure whether to update: **update it**. Agents rely on this file every sessi
 | `mockup/dashboard.html` | Dashboard UI target (`mockup_ui` summarizes structure) |
 | `README.md` | Human-facing overview |
 
+## Mini-PC deployment (required workflow)
+
+The mini-PC is the **production runtime** for this app (Ollama, IBKR Gateway, daemon, dashboard). The repo must be cloned and kept in sync there.
+
+**Reference:** [`docs/mini-pc.md`](docs/mini-pc.md)
+
+### After merging or pushing to `main`
+
+1. **Update the mini-PC repo** — do not consider the task complete until the mini-PC has latest `main`:
+   - **On mini-PC:** `cd ~/news-trader-advisor && git pull --ff-only origin main`
+   - **From dev machine:** `./scripts/sync-mini-pc.sh` (requires `config/mini-pc.env` from `config/mini-pc.env.example`)
+2. If dependencies or config changed, run setup on the mini-PC (venv, pip, `.env`).
+3. Restart affected services when applicable (Phase 1+: daemon, web server, IB Gateway).
+
+### First-time mini-PC setup
+
+If the repo is not cloned yet on the mini-PC, run [`scripts/clone-on-mini-pc.sh`](scripts/clone-on-mini-pc.sh) there (see `docs/mini-pc.md`).
+
+### Agent checklist (deployable changes)
+
+- [ ] Changes pushed/merged to `main`
+- [ ] Mini-PC pulled latest `main` (or user notified with exact commands)
+- [ ] Repo map updated if structure changed
+
+If SSH sync is not configured, **tell the user** to pull on the mini-PC and include the commands from `docs/mini-pc.md`.
+
 ## Cloud Agent notes
 
 - Push with `git push -u origin <branch>`.
 - Create/update PRs via the ManagePullRequest tool.
 - Commit and push before testing; update PR after changes.
 - Always include repo map updates in the same commit as code changes.
+- After merge to `main`, follow **Mini-PC deployment** above.

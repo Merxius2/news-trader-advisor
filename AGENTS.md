@@ -18,4 +18,9 @@ Local news-driven trading **advisor** (mini-PC): Ollama analyzes headlines → s
 
 - Plan: [`docs/PLAN.md`](docs/PLAN.md)
 - Repo map: [`docs/repo-map.json`](docs/repo-map.json)
+- Mini-PC setup & sync: [`docs/mini-pc.md`](docs/mini-pc.md)
 - Dashboard mockup: [`mockup/dashboard.html`](mockup/dashboard.html)
+
+## Mini-PC (runtime target)
+
+After changes land on **`main`**, pull on the mini-PC or run `./scripts/sync-mini-pc.sh`. See [`.instructions`](.instructions) § Mini-PC deployment.
