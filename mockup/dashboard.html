@@ -357,12 +357,78 @@
       position: relative;
       height: 220px;
       margin: 0 -0.25rem;
+      cursor: crosshair;
     }
 
     .chart-wrap svg {
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    .chart-crosshair {
+      stroke: var(--muted);
+      stroke-width: 1;
+      stroke-dasharray: 4 3;
+      pointer-events: none;
+    }
+
+    .chart-hover-dot {
+      fill: var(--cyan);
+      stroke: var(--bg);
+      stroke-width: 2.5;
+      pointer-events: none;
+    }
+
+    .chart-hover-layer {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chart-hover-layer.visible {
+      opacity: 1;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      z-index: 2;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      transition: opacity 0.1s ease;
+      transform: translate(-50%, calc(-100% - 10px));
+    }
+
+    .chart-tooltip.visible {
+      opacity: 1;
+    }
+
+    .chart-tooltip .time {
+      color: var(--muted);
+      font-size: 0.68rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .chart-tooltip .val {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .chart-tooltip .val.positive { color: var(--green); }
+    .chart-tooltip .val.negative { color: var(--red); }
+
+    .chart-tooltip .alt {
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      margin-top: 0.15rem;
     }
 
     .chart-grid-line {
@@ -690,8 +756,8 @@
             </div>
           </div>
         </div>
-        <div class="chart-wrap">
-          <svg viewBox="0 0 800 220" preserveAspectRatio="none" aria-hidden="true">
+        <div class="chart-wrap" id="chartWrap">
+          <svg id="chartSvg" viewBox="0 0 800 220" preserveAspectRatio="none" aria-hidden="true">
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="rgba(34, 211, 238, 0.22)" />
@@ -703,8 +769,18 @@
             <line class="chart-zero-line" id="chartZero" x1="52" y1="110" x2="780" y2="110" />
             <path class="chart-area" id="chartArea" />
             <path class="chart-line" id="chartLine" />
+            <g id="chartHoverLayer" class="chart-hover-layer">
+              <line class="chart-crosshair" id="chartCrosshair" x1="0" y1="12" x2="0" y2="192" />
+              <circle class="chart-hover-dot" id="chartHoverDot" r="5" cx="0" cy="0" />
+            </g>
+            <rect id="chartHitArea" fill="transparent" x="52" y="12" width="728" height="180" />
             <g id="chartXLabels"></g>
           </svg>
+          <div class="chart-tooltip" id="chartTooltip">
+            <div class="time" id="chartTipTime"></div>
+            <div class="val" id="chartTipVal"></div>
+            <div class="alt" id="chartTipAlt"></div>
+          </div>
         </div>
       </div>
 
@@ -909,6 +985,7 @@
         "1d": {
           eur: [0, 2.1, 4.5, 3.2, 8.1, 12.4, 10.2, 15.8, 18.4],
           pct: [0, 0.5, 1.1, 0.8, 1.9, 3.0, 2.4, 3.8, 4.4],
+          times: ["00:00", "03:00", "06:00", "09:00", "12:00", "15:00", "18:00", "21:00", "Now"],
           xLabels: ["00:00", "06:00", "12:00", "18:00", "Now"],
           returnEur: "+€18,40",
           returnPct: "+4,4%"
@@ -916,6 +993,7 @@
         "1w": {
           eur: [0, -4.2, 2.8, 6.1, 11.5, 8.3, 18.4],
           pct: [0, -1.0, 0.7, 1.5, 2.7, 2.0, 4.4],
+          times: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
           xLabels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
           returnEur: "+€18,40",
           returnPct: "+4,4%"
@@ -923,6 +1001,7 @@
         "1m": {
           eur: [0, 5.2, -2.1, 8.4, 14.2, 22.6, 18.4],
           pct: [0, 1.3, -0.5, 2.0, 3.4, 5.4, 4.4],
+          times: ["1 Sep", "8 Sep", "15 Sep", "18 Sep", "20 Sep", "21 Sep", "Now"],
           xLabels: ["W1", "W2", "W3", "W4", "W5"],
           returnEur: "+€18,40",
           returnPct: "+4,4%"
@@ -930,6 +1009,7 @@
         "3m": {
           eur: [0, -8.2, 4.5, 12.1, 28.4, 18.4],
           pct: [0, -2.0, 1.1, 2.9, 6.8, 4.4],
+          times: ["1 Jul", "15 Jul", "1 Aug", "15 Aug", "1 Sep", "Now"],
           xLabels: ["Jul", "Aug", "Sep"],
           returnEur: "+€47,05",
           returnPct: "+12,6%"
@@ -937,6 +1017,7 @@
         "ytd": {
           eur: [0, -12.4, -4.8, 6.2, 18.4],
           pct: [0, -3.0, -1.1, 1.5, 4.4],
+          times: ["1 Jan", "1 Apr", "1 Jul", "1 Sep", "Now"],
           xLabels: ["Jan", "Apr", "Jul", "Sep"],
           returnEur: "+€18,40",
           returnPct: "+4,4%"
@@ -944,13 +1025,21 @@
         "1y": {
           eur: [0, -18.2, -6.4, 8.8, 22.1, 18.4],
           pct: [0, -4.3, -1.5, 2.1, 5.3, 4.4],
+          times: ["Sep 2025", "Jan 2026", "Apr 2026", "Jul 2026", "Sep 2026", "Now"],
           xLabels: ["Oct", "Jan", "Apr", "Jul", "Sep"],
           returnEur: "+€18,40",
           returnPct: "+4,4%"
         }
       };
 
-      var state = { unit: "eur", period: "1d" };
+      var state = { unit: "eur", period: "1d", lastPath: null, lastData: null };
+      var chartWrap = document.getElementById("chartWrap");
+      var chartSvg = document.getElementById("chartSvg");
+      var hoverLayer = document.getElementById("chartHoverLayer");
+      var crosshair = document.getElementById("chartCrosshair");
+      var hoverDot = document.getElementById("chartHoverDot");
+      var chartTooltip = document.getElementById("chartTooltip");
+      var hitArea = document.getElementById("chartHitArea");
 
       function fmtY(val, unit) {
         if (unit === "pct") {
@@ -1037,7 +1126,93 @@
         } else {
           retEl.innerHTML = data.returnPct + '<span class="pct">(' + data.returnEur + ")</span>";
         }
+
+        state.lastPath = path;
+        state.lastData = data;
+        hideHover();
       }
+
+      function hideHover() {
+        hoverLayer.classList.remove("visible");
+        chartTooltip.classList.remove("visible");
+      }
+
+      function nearestIndex(svgX, pts) {
+        var best = 0;
+        var bestDist = Infinity;
+        for (var i = 0; i < pts.length; i++) {
+          var d = Math.abs(pts[i].x - svgX);
+          if (d < bestDist) {
+            bestDist = d;
+            best = i;
+          }
+        }
+        return best;
+      }
+
+      function showHover(idx) {
+        if (!state.lastPath || !state.lastData) return;
+        var pt = state.lastPath.pts[idx];
+        var eurVal = state.lastData.eur[idx];
+        var pctVal = state.lastData.pct[idx];
+        var time = (state.lastData.times || state.lastData.xLabels)[idx] || "";
+
+        crosshair.setAttribute("x1", pt.x);
+        crosshair.setAttribute("x2", pt.x);
+        crosshair.setAttribute("y1", PAD.t);
+        crosshair.setAttribute("y2", PAD.t + plotH);
+        hoverDot.setAttribute("cx", pt.x);
+        hoverDot.setAttribute("cy", pt.y);
+
+        var primary = state.unit === "eur" ? fmtY(eurVal, "eur") : fmtY(pctVal, "pct");
+        var alt = state.unit === "eur" ? fmtY(pctVal, "pct") : fmtY(eurVal, "eur");
+        var valClass = (state.unit === "eur" ? eurVal : pctVal) >= 0 ? "positive" : "negative";
+
+        document.getElementById("chartTipTime").textContent = time;
+        var tipVal = document.getElementById("chartTipVal");
+        tipVal.textContent = primary;
+        tipVal.className = "val " + valClass;
+        document.getElementById("chartTipAlt").textContent = alt;
+
+        var rect = chartWrap.getBoundingClientRect();
+        var left = (pt.x / W) * rect.width;
+        var top = (pt.y / H) * rect.height;
+        chartTooltip.style.left = left + "px";
+        chartTooltip.style.top = top + "px";
+
+        if (left < 70) chartTooltip.style.transform = "translate(0, calc(-100% - 10px))";
+        else if (left > rect.width - 70) chartTooltip.style.transform = "translate(-100%, calc(-100% - 10px))";
+        else chartTooltip.style.transform = "translate(-50%, calc(-100% - 10px))";
+
+        hoverLayer.classList.add("visible");
+        chartTooltip.classList.add("visible");
+      }
+
+      function onChartPointer(clientX) {
+        var rect = chartSvg.getBoundingClientRect();
+        var svgX = ((clientX - rect.left) / rect.width) * W;
+        if (svgX < PAD.l || svgX > W - PAD.r) {
+          hideHover();
+          return;
+        }
+        if (!state.lastPath) return;
+        showHover(nearestIndex(svgX, state.lastPath.pts));
+      }
+
+      hitArea.addEventListener("mousemove", function (e) {
+        onChartPointer(e.clientX);
+      });
+
+      hitArea.addEventListener("mouseleave", hideHover);
+
+      hitArea.addEventListener("touchmove", function (e) {
+        if (e.touches.length) {
+          e.preventDefault();
+          onChartPointer(e.touches[0].clientX);
+        }
+      }, { passive: false });
+
+      hitArea.addEventListener("touchend", hideHover);
 
       function setActive(group, attr, val) {
         group.querySelectorAll(".seg-btn").forEach(function (btn) {
