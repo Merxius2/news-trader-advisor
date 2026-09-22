@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 MIGRATIONS: list[str] = [
     """
@@ -159,6 +159,19 @@ MIGRATIONS: list[str] = [
     """,
 ]
 
+BOT_STATE_MIGRATION = """
+CREATE TABLE IF NOT EXISTS bot_state (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    enabled INTEGER NOT NULL DEFAULT 1,
+    current_state TEXT NOT NULL DEFAULT 'idle',
+    last_poll_at TEXT,
+    last_run_at TEXT,
+    updated_at TEXT NOT NULL
+);
+INSERT OR IGNORE INTO bot_state (id, enabled, current_state, updated_at)
+VALUES (1, 1, 'idle', datetime('now'));
+"""
+
 
 def run_migrations(conn: sqlite3.Connection) -> None:
     conn.executescript(MIGRATIONS[0])
@@ -167,7 +180,11 @@ def run_migrations(conn: sqlite3.Connection) -> None:
     if current == 0:
         for sql in MIGRATIONS[1:]:
             conn.executescript(sql)
+        conn.executescript(BOT_STATE_MIGRATION)
         conn.execute("INSERT INTO schema_version (version) VALUES (?)", (SCHEMA_VERSION,))
+    elif current == 1 and SCHEMA_VERSION >= 2:
+        conn.executescript(BOT_STATE_MIGRATION)
+        conn.execute("UPDATE schema_version SET version = ?", (SCHEMA_VERSION,))
     elif current < SCHEMA_VERSION:
         raise RuntimeError(f"Unsupported schema version {current}; expected {SCHEMA_VERSION}")
     conn.commit()

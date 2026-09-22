@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{{ page_title }} — Crypto Advisor{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="live-banner">● Live dashboard — SQLite data · Phase 2 · Trader allocation €{{ "%.0f"|format(status.allocation_eur) }} · Read-only</div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">
+        <h1>Crypto Advisor</h1>
+        <span>Local · Ollama · Bitvavo</span>
+        <div class="trader-badge">◆ Trader €{{ "%.0f"|format(status.allocation_eur) }} cap</div>
+      </div>
+      <nav class="nav">
+        <a href="/" class="{% if active_nav == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="/watchlist" class="{% if active_nav == 'watchlist' %}active{% endif %}">Watchlist</a>
+        <a href="/suggestions" class="{% if active_nav == 'suggestions' %}active{% endif %}">Suggestions</a>
+        <a href="/activity" class="{% if active_nav == 'activity' %}active{% endif %}">Activity log</a>
+        <a href="/digests" class="{% if active_nav == 'digests' %}active{% endif %}">Digests</a>
+        <a href="/settings" class="{% if active_nav == 'settings' %}active{% endif %}">Settings</a>
+      </nav>
+      <div class="status-panel">
+        <div class="status-row">
+          <span><span class="dot warn"></span>Bitvavo</span>
+          <span>Phase 3</span>
+        </div>
+        <div class="status-row">
+          <span><span class="dot {% if status.ollama_ok %}ok{% else %}warn{% endif %}"></span>Ollama</span>
+          <span>{{ status.ollama_model }}</span>
+        </div>
+        <div class="status-row">
+          <span><span class="dot ok"></span>News poll</span>
+          <span>{{ status.news_poll_ago }}</span>
+        </div>
+        <div class="status-row">
+          <span><span class="dot ok"></span>Articles</span>
+          <span>{{ status.article_count }}</span>
+        </div>
+        <div class="status-row">
+          <span><span class="dot ok"></span>Suggestions</span>
+          <span>{{ status.suggestion_count }}</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

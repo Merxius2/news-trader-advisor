@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="top-bar">
+  <div>
+    <h2>Settings</h2>
+    <p>Read-only view of config/settings.yaml · edit file on disk to change</p>
+  </div>
+</div>
+<div class="panel" style="padding:1rem 1.25rem; font-size:0.85rem; line-height:1.7">
+  <p><strong>Ollama model:</strong> {{ settings.ollama.model }}</p>
+  <p><strong>News poll interval:</strong> {{ settings.schedule.news_poll_interval_minutes }} min</p>
+  <p><strong>Hourly digest:</strong> :{{ "%02d"|format(settings.schedule.hourly_digest_minute) }} UTC</p>
+  <p><strong>Min confidence (digest):</strong> {{ settings.suggestions.min_confidence_for_digest }}</p>
+  <p><strong>Max articles per run:</strong> {{ settings.suggestions.max_articles_per_run }}</p>
+  <p><strong>Trader allocation:</strong> €{{ settings.trader.allocation_eur }}</p>
+  <p><strong>Database:</strong> {{ settings.database.path }}</p>
+</div>
+{% endblock %}

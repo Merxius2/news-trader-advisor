@@ -1,0 +1,36 @@
+<div class="bot-control-bar" id="botControlBar"
+     hx-get="/partials/bot-status"
+     hx-trigger="every 15s"
+     hx-swap="outerHTML">
+  <div class="bot-status-block">
+    <div class="bot-status-indicator" id="botStatusIndicator">
+      {% if status.bot.enabled and status.bot.state != 'idle' %}
+      <span class="bot-pulse"></span>
+      {% endif %}
+    </div>
+    <div class="bot-status-text">
+      <h4 id="botStatusTitle">{{ status.bot.title }}</h4>
+      <p id="botStatusDetail">{{ status.bot.detail }}</p>
+      <div class="bot-state-pills" id="botStatePills">
+        {% for state in ['idle', 'news', 'analysis', 'trading'] %}
+        <span class="bot-state-pill {% if status.bot.state == state %}active{% endif %}" data-state="{{ state }}">
+          {% if state == 'idle' %}Idle{% elif state == 'news' %}Reading news{% elif state == 'analysis' %}Analyzing{% else %}Trading{% endif %}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="bot-toggle-wrap">
+    <span class="bot-toggle-label {% if status.bot.enabled %}on{% endif %}" id="botToggleLabel">
+      {% if status.bot.enabled %}Bot running{% else %}Bot paused{% endif %}
+    </span>
+    <form hx-post="/actions/bot-toggle" hx-target="#botControlBar" hx-swap="outerHTML">
+      <input type="hidden" name="enabled" value="{% if status.bot.enabled %}0{% else %}1{% endif %}" />
+      <button type="submit" class="bot-toggle" role="switch"
+              aria-checked="{{ 'true' if status.bot.enabled else 'false' }}"
+              aria-label="Trading bot on/off">
+        <span class="bot-toggle-knob"></span>
+      </button>
+    </form>
+  </div>
+</div>

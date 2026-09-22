@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="top-bar">
+  <div>
+    <h2>Watchlist</h2>
+    <p>Markets from config/watchlist.yaml · latest signal per market</p>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-header">Markets</div>
+  {% for w in watchlist %}
+  <div class="watch-item">
+    <span><strong>{{ w.market }}</strong> <span style="color:var(--muted);font-size:0.75rem">{{ w.notes }}</span></span>
+    <span class="tag {{ w.action_class }}">
+      {% if w.has_signal %}{{ w.action }} ({{ "%.2f"|format(w.confidence) }}){% else %}no signal{% endif %}
+    </span>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

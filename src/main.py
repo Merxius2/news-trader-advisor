@@ -76,14 +76,19 @@ def cmd_run_once() -> int:
 
 
 def cmd_run_daemon() -> int:
+    from src.web.jobs import run_news_cycle
+
     settings = load_settings()
-    db_path = init_db(Path(settings.database.path))
+    init_db(Path(settings.database.path))
 
-    def job() -> None:
-        with db_session(db_path) as conn:
-            IngestPipeline(conn, settings).run_full_cycle()
+    def poll_job() -> None:
+        run_news_cycle(settings, write_report=False)
 
-    service = SchedulerService(settings, job)
+    def hourly_job() -> None:
+        run_news_cycle(settings, write_report=True)
+
+    service = SchedulerService(settings, hourly_job)
+    service.add_news_poll_job(poll_job)
     service.start()
     return 0
 

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="top-bar">
+  <div>
+    <h2>Dashboard</h2>
+    <p>{{ now_str }} · Bitvavo read-only · News poll {{ status.news_poll_ago }}</p>
+  </div>
+  <div class="actions">
+    <button class="btn"
+            hx-post="/actions/run-news"
+            hx-target="#botControlBar"
+            hx-swap="outerHTML"
+            hx-on::after-request="htmx.trigger('#actionLogPanel', 'refreshActivity'); htmx.trigger('#suggestionsPanel', 'refreshSuggestions')">
+      Run news now
+    </button>
+    <button class="btn btn-primary" disabled title="Phase 3">Sync Bitvavo</button>
+  </div>
+</div>
+
+{% include "partials/bot_status.html" %}
+
+<div class="allocation-bar-wrap phase-placeholder">
+  <div class="allocation-bar-head">
+    <span>Trader allocation deployed</span>
+    <strong>Phase 4</strong>
+  </div>
+  <div class="allocation-track"><div class="allocation-fill" style="width:0%"></div></div>
+  <div class="allocation-sub">Sub-ledger tracking arrives in Phase 4 — mockup preview only</div>
+</div>
+
+<div class="section-label">
+  <h3>Trader performance (bot only)</h3>
+  <span class="hint">Phase 4–5 — sample layout below</span>
+</div>
+
+<div class="pnl-grid phase-placeholder">
+  <div class="pnl-card highlight">
+    <div class="label">Trader portfolio</div>
+    <div class="value">—</div>
+    <div class="sub">Phase 4</div>
+  </div>
+  <div class="pnl-card highlight">
+    <div class="label">Trader unrealized P&amp;L</div>
+    <div class="value">—</div>
+    <div class="sub">Phase 4</div>
+  </div>
+  <div class="pnl-card highlight">
+    <div class="label">Trader win rate</div>
+    <div class="value">—</div>
+    <div class="sub">Phase 5</div>
+  </div>
+</div>
+
+<div class="panel action-log-panel">
+  <div class="panel-header">
+    Activity log
+    <span class="badge trader">Live</span>
+  </div>
+  <div id="actionLogPanel"
+       hx-get="/activity/feed?filter={{ activity_filter }}"
+       hx-trigger="every 30s, refreshActivity from:body"
+       hx-swap="innerHTML">
+    {% include "partials/activity_feed.html" %}
+  </div>
+</div>
+
+<div class="content-grid">
+  <div class="left-col">
+    <div class="panel">
+      <div class="panel-header">
+        Latest crypto suggestions &amp; reasoning
+        <span class="badge">{{ suggestions|length }} shown</span>
+      </div>
+      <div id="suggestionsPanel"
+           hx-get="/partials/suggestions"
+           hx-trigger="every 45s, refreshSuggestions from:body"
+           hx-swap="innerHTML">
+        {% include "partials/suggestions_list.html" %}
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="panel">
+      <div class="panel-header">
+        Watchlist
+        <span class="badge">{{ watchlist|length }} markets</span>
+      </div>
+      {% for w in watchlist %}
+      <div class="watch-item">
+        <span>
+          <span class="signal-dot {% if w.has_signal and w.action == 'would_buy' %}signal-bull{% else %}signal-neutral{% endif %}"></span>
+          <strong>{{ w.market }}</strong>
+        </span>
+        <span class="tag {{ w.action_class }}">
+          {% if w.has_signal %}{{ w.action }}{% else %}no signal{% endif %}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -42,8 +42,8 @@
   "repo": {
     "name": "news-trader-advisor",
     "description": "Local news-driven trading advisor: Ollama analyzes headlines, IBKR paper tracks P&L, web dashboard. Paper only in v1.",
-    "current_phase": "1",
-    "next_build_phase": "2",
+    "current_phase": "2",
+    "next_build_phase": "3",
     "active_fork": "bitvavo_crypto",
     "stack": ["python3.11+", "fastapi", "sqlite", "apscheduler", "ollama", "ib_async", "htmx", "pydantic", "pyyaml"]
   },
@@ -128,14 +128,16 @@
     "sync_account_summary": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
     "sync_positions": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
     "sync_executions": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
-    "create_app": { "file": "src/web/app.py", "kind": "function", "status": "planned", "phase": "2" },
-    "app": { "file": "src/web/app.py", "kind": "variable", "status": "planned", "phase": "2" },
+    "create_app": { "file": "src/web/app.py", "kind": "function", "status": "exists", "phase": "2" },
+    "app": { "file": "src/web/app.py", "kind": "variable", "status": "exists", "phase": "2" },
+    "run_news_cycle": { "file": "src/web/jobs.py", "kind": "function", "status": "exists", "phase": "2" },
+    "BackgroundSchedulerService": { "file": "src/scheduler.py", "kind": "class", "status": "exists", "phase": "2" },
     "IngestPipeline": { "file": "src/pipeline.py", "kind": "class", "status": "exists", "phase": "1" },
     "run_ingest_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "exists", "phase": "1" },
     "run_analysis_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "exists", "phase": "1" }
   },
   "api_routes": {
-    "status": "planned",
+    "status": "exists",
     "phase": "2",
     "base": "/",
     "routes": [
@@ -623,7 +625,7 @@
   "phases": {
     "0": { "name": "setup", "status": "done", "branch": "cursor/phase-0-1-bitvavo-e0ae", "symbols": ["init_db", "run_migrations", "Settings", "load_settings", "main", "refresh_markets_cache"], "deliverable": "python -m src.main --help; init-db; cache-markets" },
     "1": { "name": "news_suggestions", "status": "done", "branch": "cursor/phase-0-1-bitvavo-e0ae", "symbols": ["IngestPipeline", "RssFetcher", "CryptoCompareFetcher", "OllamaClient", "RulesEngine", "MarkdownReporter"], "deliverable": "run-once / run-daemon ingests news; structured suggestions + hourly markdown" },
-    "2": { "name": "dashboard", "status": "not_started", "symbols": ["create_app", "api_routes", "templates/dashboard.html"], "deliverable": "FastAPI dashboard matching mockup" },
+    "2": { "name": "dashboard", "status": "done", "branch": "cursor/phase-2-dashboard-e0ae", "symbols": ["create_app", "api_routes", "templates/dashboard.html", "run_news_cycle"], "deliverable": "FastAPI dashboard with live suggestions, activity log, watchlist; news poll every 3m" },
     "3": { "name": "ibkr_readonly", "status": "not_started", "symbols": ["IbkrConnector", "IbkrSyncService", "IbkrPosition", "IbkrSnapshot"], "deliverable": "live paper P&L; no orders" },
     "4": { "name": "link_suggestions_positions", "status": "not_started", "symbols": ["SuggestionTrade", "rollup_daily"] },
     "5": { "name": "enrichment_quality", "status": "not_started", "symbols": ["Notifier"] },

@@ -1,0 +1,29 @@
+{% if not suggestions %}
+<p style="color:var(--muted); font-size:0.85rem; padding:1rem;">No suggestions yet — run news ingest or wait for the next poll.</p>
+{% else %}
+{% for s in suggestions %}
+<div class="suggestion {% if not s.visible %}suggestion-hidden{% endif %}">
+  <div class="suggestion-head">
+    <h4>{{ s.title }}</h4>
+    <span class="confidence">{{ "%.2f"|format(s.confidence) }}</span>
+  </div>
+  <div class="meta">
+    <span>{{ s.source }} · {{ s.time }}</span>
+    <span>·</span>
+    <span>{{ s.market }}</span>
+    <span>·</span>
+    <span class="tag {{ s.action_class }}">{{ s.action }}</span>
+    <span>· {{ s.event_type }}</span>
+    <span>· {{ s.source_quality }}</span>
+    {% if not s.visible %}<span>· hidden</span>{% endif %}
+  </div>
+  <div class="reasoning">{{ s.rationale }}</div>
+  {% if s.would_do_text %}
+  <div class="would-do"><strong>Would do:</strong> {{ s.would_do_text }} Not executed.</div>
+  {% endif %}
+  {% if s.risks %}
+  <div class="risks">⚠ {{ s.risks|join(' · ') }}</div>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}

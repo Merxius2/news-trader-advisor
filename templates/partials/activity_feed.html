@@ -1,0 +1,31 @@
+<div class="action-log-toolbar">
+  <div class="seg-control" id="actionLogFilter" role="group" aria-label="Filter activity log">
+    {% for f, label in [('all','All'),('trade','Trade'),('news','News'),('analysis','Analysis'),('sync','Sync'),('system','System'),('idle','Idle')] %}
+    <button type="button"
+            class="seg-btn {% if activity_filter == f %}active{% endif %}"
+            data-filter="{{ f }}"
+            hx-get="/activity/feed?filter={{ f }}"
+            hx-target="#actionLogPanel"
+            hx-swap="innerHTML">{{ label }}</button>
+    {% endfor %}
+  </div>
+  <span class="action-log-count">{{ activity|length }} events</span>
+</div>
+{% if not activity %}
+<div class="action-log-empty">No events yet{% if activity_filter != 'all' %} for this filter{% endif %}.</div>
+{% else %}
+<div class="action-log" id="actionLog">
+  {% for item in activity %}
+  <div class="action-log-item" data-log-type="{{ item.event_type }}">
+    <span class="action-log-time">{{ item.time }}</span>
+    <span class="action-log-type {{ item.event_type }}"><span class="action-log-dot"></span>{{ item.event_type|title }}</span>
+    <span class="action-log-body">
+      <strong>{{ item.message }}</strong>
+      {% if item.metadata.get('source') %}
+      <span class="detail">{{ item.metadata.get('source') }}</span>
+      {% endif %}
+    </span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

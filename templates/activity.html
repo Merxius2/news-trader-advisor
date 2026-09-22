@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="top-bar">
+  <div>
+    <h2>Activity log</h2>
+    <p>Full event history from activity_log</p>
+  </div>
+</div>
+<div class="panel action-log-panel">
+  <div class="panel-header">Events</div>
+  <div id="actionLogPanel"
+       hx-get="/activity/feed?filter={{ activity_filter }}"
+       hx-trigger="every 30s"
+       hx-swap="innerHTML">
+    {% include "partials/activity_feed.html" %}
+  </div>
+</div>
+{% endblock %}

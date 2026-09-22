@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="top-bar">
+  <div>
+    <h2>Digests</h2>
+    <p>Hourly markdown reports from reports/</p>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-header">Report files</div>
+  {% if not digests %}
+  <p style="color:var(--muted); padding:1rem;">No reports yet — generated after hourly digest or run-once.</p>
+  {% else %}
+  <ul style="list-style:none; padding:1rem;">
+    {% for d in digests %}
+    <li style="padding:0.35rem 0; font-family:'JetBrains Mono',monospace; font-size:0.85rem">{{ d.name }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endblock %}
