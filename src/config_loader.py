@@ -23,8 +23,8 @@ class ScheduleConfig:
 @dataclass
 class OllamaConfig:
     base_url: str = "http://127.0.0.1:11434"
-    model: str = "qwen2.5:7b"
-    fallback_model: str = "martain7r/finance-llama-8b:q4_k_m"
+    model: str = "qwen2:1.5b"
+    fallback_model: str = ""
     temperature: float = 0.2
     timeout_seconds: int = 120
     prompts_module: str = "crypto"
