@@ -757,7 +757,7 @@
           </div>
         </div>
         <div class="chart-wrap" id="chartWrap">
-          <svg id="chartSvg" viewBox="0 0 800 220" preserveAspectRatio="none" aria-hidden="true">
+          <svg id="chartSvg" viewBox="0 0 800 220" aria-hidden="true">
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="rgba(34, 211, 238, 0.22)" />
@@ -977,9 +977,11 @@
   <script>
     (function () {
       var PAD = { l: 52, r: 20, t: 12, b: 28 };
-      var W = 800, H = 220;
+      var H = 220;
+      var W = 800;
       var plotW = W - PAD.l - PAD.r;
       var plotH = H - PAD.t - PAD.b;
+      var resizeTimer = null;
 
       var series = {
         "1d": {
@@ -1041,6 +1043,34 @@
       var chartTooltip = document.getElementById("chartTooltip");
       var hitArea = document.getElementById("chartHitArea");
 
+      function syncChartSize() {
+        W = Math.max(320, Math.round(chartWrap.clientWidth));
+        plotW = W - PAD.l - PAD.r;
+        chartSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
+        hitArea.setAttribute("width", plotW);
+        hitArea.setAttribute("height", plotH);
+      }
+
+      function clientToSvgX(clientX) {
+        var pt = chartSvg.createSVGPoint();
+        pt.x = clientX;
+        pt.y = 0;
+        var ctm = chartSvg.getScreenCTM();
+        if (!ctm) return 0;
+        return pt.matrixTransform(ctm.inverse()).x;
+      }
+
+      function svgToLocal(svgX, svgY) {
+        var pt = chartSvg.createSVGPoint();
+        pt.x = svgX;
+        pt.y = svgY;
+        var ctm = chartSvg.getScreenCTM();
+        var wrapRect = chartWrap.getBoundingClientRect();
+        if (!ctm) return { x: 0, y: 0 };
+        var screen = pt.matrixTransform(ctm);
+        return { x: screen.x - wrapRect.left, y: screen.y - wrapRect.top };
+      }
+
       function fmtY(val, unit) {
         if (unit === "pct") {
           return (val >= 0 ? "+" : "") + val.toFixed(1).replace(".", ",") + "%";
@@ -1071,12 +1101,14 @@
       }
 
       function render() {
+        syncChartSize();
         var data = series[state.period];
         var values = state.unit === "eur" ? data.eur : data.pct;
         var path = buildPath(values);
 
         document.getElementById("chartLine").setAttribute("d", path.line);
         document.getElementById("chartArea").setAttribute("d", path.area);
+        document.getElementById("chartZero").setAttribute("x2", W - PAD.r);
         document.getElementById("chartZero").setAttribute("y1", path.baseY);
         document.getElementById("chartZero").setAttribute("y2", path.baseY);
 
@@ -1174,14 +1206,12 @@
         tipVal.className = "val " + valClass;
         document.getElementById("chartTipAlt").textContent = alt;
 
-        var rect = chartWrap.getBoundingClientRect();
-        var left = (pt.x / W) * rect.width;
-        var top = (pt.y / H) * rect.height;
-        chartTooltip.style.left = left + "px";
-        chartTooltip.style.top = top + "px";
+        var local = svgToLocal(pt.x, pt.y);
+        chartTooltip.style.left = local.x + "px";
+        chartTooltip.style.top = local.y + "px";
 
-        if (left < 70) chartTooltip.style.transform = "translate(0, calc(-100% - 10px))";
-        else if (left > rect.width - 70) chartTooltip.style.transform = "translate(-100%, calc(-100% - 10px))";
+        if (local.x < 70) chartTooltip.style.transform = "translate(0, calc(-100% - 10px))";
+        else if (local.x > chartWrap.clientWidth - 70) chartTooltip.style.transform = "translate(-100%, calc(-100% - 10px))";
         else chartTooltip.style.transform = "translate(-50%, calc(-100% - 10px))";
 
         hoverLayer.classList.add("visible");
@@ -1189,8 +1219,7 @@
       }
 
       function onChartPointer(clientX) {
-        var rect = chartSvg.getBoundingClientRect();
-        var svgX = ((clientX - rect.left) / rect.width) * W;
+        var svgX = clientToSvgX(clientX);
         if (svgX < PAD.l || svgX > W - PAD.r) {
           hideHover();
           return;
@@ -1237,6 +1266,11 @@
         state.period = btn.getAttribute("data-period");
         setActive(document.getElementById("periodToggle"), "data-period", state.period);
         render();
+      });
+
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(render, 100);
       });
 
       render();
