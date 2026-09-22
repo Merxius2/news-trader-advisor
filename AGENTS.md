@@ -23,4 +23,4 @@ Local news-driven trading **advisor** (mini-PC): Ollama analyzes headlines → s
 
 ## Mini-PC (runtime target)
 
-After changes land on **`main`**, pull on the mini-PC or run `./scripts/sync-mini-pc.sh`. See [`.instructions`](.instructions) § Mini-PC deployment.
+After changes land on **`main`**, run `./scripts/sync-mini-pc.sh` (pull + restart dashboard). See [`.instructions`](.instructions) § Mini-PC deployment.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pull latest main on the mini-PC via SSH.
+# Pull latest main on the mini-PC via SSH and restart dashboard.
 # Requires config/mini-pc.env (see config/mini-pc.env.example).
 
 set -euo pipefail
@@ -21,6 +21,6 @@ source "$ENV_FILE"
 
 echo "Syncing mini-PC: $MINI_PC_HOST:$MINI_PC_REPO_PATH"
 
-ssh "$MINI_PC_HOST" "cd $MINI_PC_REPO_PATH && git fetch origin && git pull --ff-only origin main"
+ssh "$MINI_PC_HOST" "cd $MINI_PC_REPO_PATH && bash scripts/pull-on-mini-pc.sh"
 
-echo "Done. Mini-PC is on latest main."
+echo "Done. Mini-PC is on latest main with dashboard restarted."

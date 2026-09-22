@@ -137,10 +137,11 @@ The mini-PC is the **production runtime** for this app (Ollama, IBKR Gateway, da
 ### After merging or pushing to `main`
 
 1. **Update the mini-PC repo** — do not consider the task complete until the mini-PC has latest `main`:
-   - **On mini-PC:** `cd ~/news-trader-advisor && git pull --ff-only origin main`
-   - **From dev machine:** `./scripts/sync-mini-pc.sh` (requires `config/mini-pc.env` from `config/mini-pc.env.example`)
+   - **On mini-PC:** `cd ~/news-trader-advisor && bash scripts/pull-on-mini-pc.sh`
+   - **From dev machine:** `./scripts/sync-mini-pc.sh` (requires `config/mini-pc.env`)
+   Both commands **pull and restart the dashboard** (`news-trader-advisor.service`) automatically.
 2. If dependencies or config changed, run setup on the mini-PC (venv, pip, `.env`).
-3. Restart affected services when applicable (Phase 1+: daemon, web server, IB Gateway).
+3. Restart other services when applicable (Phase 1+: daemon; Phase 3+: IB Gateway).
 
 ### First-time mini-PC setup
 
@@ -149,7 +150,7 @@ If the repo is not cloned yet on the mini-PC, run [`scripts/clone-on-mini-pc.sh`
 ### Agent checklist (deployable changes)
 
 - [ ] Changes pushed/merged to `main`
-- [ ] Mini-PC pulled latest `main` (or user notified with exact commands)
+- [ ] Mini-PC pulled latest `main` and dashboard restarted (or user notified with exact commands)
 - [ ] Repo map updated if structure changed
 
 If SSH sync is not configured, **tell the user** to pull on the mini-PC and include the commands from `docs/mini-pc.md`.

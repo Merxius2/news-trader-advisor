@@ -29,9 +29,10 @@ bash scripts/clone-on-mini-pc.sh ~/news-trader-advisor
 
 ```bash
 cd ~/news-trader-advisor
-git fetch origin
-git pull --ff-only origin main
+bash scripts/pull-on-mini-pc.sh
 ```
+
+Pulls latest `main` and restarts `news-trader-advisor` (dashboard) automatically.
 
 ### Option B — from your dev machine via SSH
 
@@ -48,15 +49,15 @@ cp config/mini-pc.env.example config/mini-pc.env
 ./scripts/sync-mini-pc.sh
 ```
 
-This SSHs into the mini-PC and runs `git fetch` + `git pull --ff-only origin main`.
+This SSHs into the mini-PC and runs `scripts/pull-on-mini-pc.sh` (pull + dashboard restart).
 
 ## Agent / developer workflow
 
 Whenever code is merged or pushed to **`main`**:
 
-1. **Pull on the mini-PC** (Option A or B above).
+1. **Pull on the mini-PC** (Option A or B above) — includes **automatic dashboard restart**.
 2. If the change adds dependencies or config, run setup steps on the mini-PC (venv, pip install, copy `.env`).
-3. Restart services if applicable (daemon, FastAPI, IB Gateway — Phase 1+).
+3. Restart other services if applicable (daemon Phase 1+, IB Gateway — Phase 3+).
 
 Agents completing deployable work should **sync the mini-PC** or explicitly tell the user to run the update commands.
 
@@ -82,11 +83,11 @@ This installs `news-trader-advisor.service` (systemd), binds **0.0.0.0:8080**, a
 
 ```bash
 sudo systemctl status news-trader-advisor
-sudo systemctl restart news-trader-advisor   # after git pull
+sudo systemctl restart news-trader-advisor   # manual restart if needed
 sudo systemctl stop news-trader-advisor
 ```
 
-After pulling updates that change the mockup or web app, restart the service.
+`scripts/pull-on-mini-pc.sh` restarts the dashboard after every pull — no separate restart step needed.
 
 ## Config reference
 

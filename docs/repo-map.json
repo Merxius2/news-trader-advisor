@@ -11,7 +11,7 @@
     "clone_script": "scripts/clone-on-mini-pc.sh",
     "config_example": "config/mini-pc.env.example",
     "config_local": "config/mini-pc.env",
-    "workflow": "After merge to main: git pull on mini-PC OR run scripts/sync-mini-pc.sh from dev machine",
+    "workflow": "After merge to main: bash scripts/pull-on-mini-pc.sh on mini-PC OR ./scripts/sync-mini-pc.sh from dev machine (both pull + restart dashboard)",
     "dashboard_url_lan": "http://192.168.1.30:8080/dashboard.html",
     "dashboard_port": 8080,
     "systemd_service": "news-trader-advisor.service",
@@ -262,8 +262,12 @@
       "status": "exists",
       "purpose": "deployment and maintenance scripts",
       "files": {
-        "sync-mini-pc.sh": { "purpose": "SSH to mini-PC and git pull main", "requires": "config/mini-pc.env", "run_from": "dev machine" },
-        "clone-on-mini-pc.sh": { "purpose": "first-time git clone on mini-PC", "run_from": "mini-pc" }
+        "sync-mini-pc.sh": { "purpose": "SSH to mini-PC; runs pull-on-mini-pc.sh", "requires": "config/mini-pc.env", "run_from": "dev machine" },
+        "pull-on-mini-pc.sh": { "purpose": "git pull main + restart news-trader-advisor.service", "run_from": "mini-pc" },
+        "clone-on-mini-pc.sh": { "purpose": "first-time git clone on mini-PC", "run_from": "mini-pc" },
+        "serve-dashboard.sh": { "purpose": "serve mockup (now) or FastAPI (phase 2+) on 0.0.0.0:8080", "run_from": "mini-pc" },
+        "install-dashboard-service.sh": { "purpose": "install systemd news-trader-advisor.service + UFW 8080", "run_from": "mini-pc" },
+        "news-trader-advisor.service": { "purpose": "systemd unit template for dashboard" }
       }
     },
     "mockup": {
@@ -511,8 +515,11 @@
   },
   "commands": {
     "mini_pc_clone": "bash scripts/clone-on-mini-pc.sh ~/news-trader-advisor",
-    "mini_pc_pull_local": "cd ~/news-trader-advisor && git pull --ff-only origin main",
+    "mini_pc_pull_local": "cd ~/news-trader-advisor && bash scripts/pull-on-mini-pc.sh",
     "mini_pc_sync_remote": "./scripts/sync-mini-pc.sh",
+    "dashboard_install": "bash scripts/install-dashboard-service.sh",
+    "dashboard_url": "http://192.168.1.30:8080/dashboard.html",
+    "dashboard_restart": "sudo systemctl restart news-trader-advisor",
     "mockup_preview": "cd mockup && python3 -m http.server 8765",
     "mockup_url": "http://localhost:8765/dashboard.html",
     "planned_cli": {
