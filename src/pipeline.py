@@ -104,6 +104,8 @@ class IngestPipeline:
 
         for row in pending:
             headline_id = str(row["id"])
+            # Release DB lock while Ollama runs (can take minutes per headline).
+            self.conn.commit()
             parsed, raw, model = self.ollama.analyze(
                 headline_id,
                 row["title"],
@@ -118,6 +120,7 @@ class IngestPipeline:
                     level="warn",
                     event_type="analysis",
                 )
+                self.conn.commit()
                 continue
 
             parsed.markets = self.mapper.map_markets(

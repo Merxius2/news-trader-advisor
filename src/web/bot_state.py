@@ -25,19 +25,23 @@ def ensure_bot_state(conn: sqlite3.Connection) -> None:
     )
 
 
-def get_bot_row(conn: sqlite3.Connection) -> sqlite3.Row:
-    ensure_bot_state(conn)
+def get_bot_row(conn: sqlite3.Connection, *, write: bool = False) -> sqlite3.Row:
     row = conn.execute("SELECT * FROM bot_state WHERE id = 1").fetchone()
+    if row is None:
+        if not write:
+            raise LookupError("bot_state row missing")
+        ensure_bot_state(conn)
+        row = conn.execute("SELECT * FROM bot_state WHERE id = 1").fetchone()
     assert row is not None
     return row
 
 
 def is_bot_enabled(conn: sqlite3.Connection) -> bool:
-    return bool(get_bot_row(conn)["enabled"])
+    return bool(get_bot_row(conn, write=True)["enabled"])
 
 
 def set_bot_enabled(conn: sqlite3.Connection, enabled: bool) -> None:
-    ensure_bot_state(conn)
+    get_bot_row(conn, write=True)
     state: BotState = "idle" if enabled else "stopped"
     conn.execute(
         """
@@ -50,7 +54,7 @@ def set_bot_enabled(conn: sqlite3.Connection, enabled: bool) -> None:
 
 
 def set_bot_state(conn: sqlite3.Connection, state: BotState) -> None:
-    ensure_bot_state(conn)
+    get_bot_row(conn, write=True)
     conn.execute(
         """
         UPDATE bot_state SET current_state = ?, updated_at = datetime('now') WHERE id = 1
@@ -60,7 +64,7 @@ def set_bot_state(conn: sqlite3.Connection, state: BotState) -> None:
 
 
 def mark_poll_started(conn: sqlite3.Connection) -> None:
-    ensure_bot_state(conn)
+    get_bot_row(conn, write=True)
     conn.execute(
         """
         UPDATE bot_state
@@ -71,7 +75,7 @@ def mark_poll_started(conn: sqlite3.Connection) -> None:
 
 
 def mark_run_finished(conn: sqlite3.Connection) -> None:
-    ensure_bot_state(conn)
+    get_bot_row(conn, write=True)
     conn.execute(
         """
         UPDATE bot_state
@@ -82,7 +86,17 @@ def mark_run_finished(conn: sqlite3.Connection) -> None:
 
 
 def bot_status_dict(conn: sqlite3.Connection) -> dict:
-    row = get_bot_row(conn)
+    row = conn.execute("SELECT * FROM bot_state WHERE id = 1").fetchone()
+    if row is None:
+        title, detail = _STATE_LABELS["idle"]
+        return {
+            "enabled": True,
+            "state": "idle",
+            "title": title,
+            "detail": detail,
+            "last_poll_at": None,
+            "last_run_at": None,
+        }
     state = row["current_state"]
     title, detail = _STATE_LABELS.get(state, (state, ""))
     if state == "stopped" or not row["enabled"]:
