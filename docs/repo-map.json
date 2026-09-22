@@ -12,6 +12,7 @@
       "plan": "docs/PLAN-bitvavo.md",
       "broker": "bitvavo",
       "asset_class": "crypto_spot",
+      "capital_model": "trader_allocation_sub_ledger",
       "status": "planning"
     }
   },
