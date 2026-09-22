@@ -1,6 +1,6 @@
 import unittest
 
-from src.web.system_metrics import get_host_metrics
+from src.web.system_metrics import get_host_metrics, sparkline_points
 
 
 class HostMetricsTests(unittest.TestCase):
@@ -10,6 +10,11 @@ class HostMetricsTests(unittest.TestCase):
         self.assertIn("memory_used_gb", metrics)
         self.assertIn("memory_total_gb", metrics)
         self.assertGreater(metrics["memory_total_gb"], 0)
+
+    def test_sparkline_points(self) -> None:
+        pts = sparkline_points([10.0, 20.0, 15.0, 30.0])
+        self.assertIn(",", pts)
+        self.assertEqual("", sparkline_points([1.0]))
 
 
 if __name__ == "__main__":

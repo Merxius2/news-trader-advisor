@@ -124,6 +124,89 @@
 
 .dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
 
+.host-metric-card {
+  margin-bottom: 0.85rem;
+  padding: 0.55rem 0.6rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.host-metric-card.compact {
+  margin-bottom: 0;
+  padding: 0.45rem 0.55rem;
+}
+
+.host-metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.host-metric-sub {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0.25rem;
+}
+
+.host-metric-bar {
+  height: 7px;
+  background: var(--bg);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(42, 51, 71, 0.8);
+}
+
+.host-metric-bar.thin {
+  height: 5px;
+}
+
+.host-metric-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.45s ease;
+}
+
+.host-metric-fill.cpu.ok,
+.host-metric-fill.load.ok { background: linear-gradient(90deg, var(--cyan), var(--blue)); }
+.host-metric-fill.cpu.amber,
+.host-metric-fill.load.amber { background: linear-gradient(90deg, var(--amber), #f97316); }
+.host-metric-fill.cpu.warn,
+.host-metric-fill.load.warn { background: linear-gradient(90deg, var(--red), #fb7185); }
+
+.host-metric-fill.mem.ok { background: linear-gradient(90deg, #6366f1, var(--purple)); }
+.host-metric-fill.mem.amber { background: linear-gradient(90deg, var(--amber), #f97316); }
+.host-metric-fill.mem.warn { background: linear-gradient(90deg, var(--red), #fb7185); }
+
+.host-metric-fill.ollama.ok { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+
+.host-sparkline {
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin-top: 0.35rem;
+}
+
+.host-sparkline polyline {
+  fill: none;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.spark-cpu.ok { stroke: var(--cyan); }
+.spark-cpu.amber { stroke: var(--amber); }
+.spark-cpu.warn { stroke: var(--red); }
+
+.spark-mem.ok { stroke: var(--purple); }
+.spark-mem.amber { stroke: var(--amber); }
+.spark-mem.warn { stroke: var(--red); }
+
   .dot {
     width: 7px;
     height: 7px;
