@@ -227,17 +227,16 @@
 
     .pnl-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
-    @media (max-width: 1300px) {
-      .pnl-grid { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 900px) {
+      .pnl-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 1100px) {
-      .pnl-grid { grid-template-columns: repeat(2, 1fr); }
       .layout { grid-template-columns: 1fr; }
       .sidebar { display: none; }
     }
@@ -277,6 +276,123 @@
 
     .positive { color: var(--green); }
     .negative { color: var(--red); }
+
+    .perf-chart-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.15rem 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .chart-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .chart-toolbar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .chart-toolbar-left h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .chart-period-return {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .chart-period-return .pct {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 0.35rem;
+    }
+
+    .seg-control {
+      display: inline-flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .seg-btn {
+      padding: 0.35rem 0.65rem;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .seg-btn:hover { color: var(--text); }
+
+    .seg-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .seg-btn.active.accent {
+      background: rgba(34, 211, 238, 0.12);
+      color: var(--cyan);
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+      margin: 0 -0.25rem;
+    }
+
+    .chart-wrap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-grid-line {
+      stroke: var(--border);
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    .chart-area {
+      fill: url(#chartGradient);
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-axis-label {
+      fill: var(--muted);
+      font-size: 10px;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .chart-zero-line {
+      stroke: var(--border);
+      stroke-width: 1;
+    }
 
     .content-grid {
       display: grid;
@@ -535,11 +651,6 @@
 
       <div class="pnl-grid">
         <div class="pnl-card highlight">
-          <div class="label">Trader daily P&amp;L</div>
-          <div class="value positive">+€18,40</div>
-          <div class="sub">+4,4% on trader portfolio · since 00:00 UTC</div>
-        </div>
-        <div class="pnl-card highlight">
           <div class="label">Trader portfolio</div>
           <div class="value">€420,00</div>
           <div class="sub">Within €500 allocation</div>
@@ -550,14 +661,50 @@
           <div class="sub">Tagged positions only</div>
         </div>
         <div class="pnl-card highlight">
-          <div class="label">Trader realized P&amp;L</div>
-          <div class="value positive">+€12,85</div>
-          <div class="sub">4 closed round-trips</div>
-        </div>
-        <div class="pnl-card highlight">
           <div class="label">Trader win rate</div>
           <div class="value">62%</div>
           <div class="sub">Since attribution start 1 Sep</div>
+        </div>
+      </div>
+
+      <div class="perf-chart-panel">
+        <div class="chart-toolbar">
+          <div class="chart-toolbar-left">
+            <h4>Trader P&amp;L over time</h4>
+            <div class="chart-period-return positive" id="chartReturn">
+              +€18,40<span class="pct">(+4,4%)</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+            <div class="seg-control" id="unitToggle" role="group" aria-label="Chart unit">
+              <button type="button" class="seg-btn active accent" data-unit="eur">€</button>
+              <button type="button" class="seg-btn" data-unit="pct">%</button>
+            </div>
+            <div class="seg-control" id="periodToggle" role="group" aria-label="Chart period">
+              <button type="button" class="seg-btn active" data-period="1d">1D</button>
+              <button type="button" class="seg-btn" data-period="1w">1W</button>
+              <button type="button" class="seg-btn" data-period="1m">1M</button>
+              <button type="button" class="seg-btn" data-period="3m">3M</button>
+              <button type="button" class="seg-btn" data-period="ytd">YTD</button>
+              <button type="button" class="seg-btn" data-period="1y">1Y</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 800 220" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(34, 211, 238, 0.22)" />
+                <stop offset="100%" stop-color="rgba(34, 211, 238, 0)" />
+              </linearGradient>
+            </defs>
+            <g id="chartYLabels"></g>
+            <g id="chartGrid"></g>
+            <line class="chart-zero-line" id="chartZero" x1="52" y1="110" x2="780" y2="110" />
+            <path class="chart-area" id="chartArea" />
+            <path class="chart-line" id="chartLine" />
+            <g id="chartXLabels"></g>
+          </svg>
         </div>
       </div>
 
@@ -751,5 +898,174 @@
       </div>
     </main>
   </div>
+  <script>
+    (function () {
+      var PAD = { l: 52, r: 20, t: 12, b: 28 };
+      var W = 800, H = 220;
+      var plotW = W - PAD.l - PAD.r;
+      var plotH = H - PAD.t - PAD.b;
+
+      var series = {
+        "1d": {
+          eur: [0, 2.1, 4.5, 3.2, 8.1, 12.4, 10.2, 15.8, 18.4],
+          pct: [0, 0.5, 1.1, 0.8, 1.9, 3.0, 2.4, 3.8, 4.4],
+          xLabels: ["00:00", "06:00", "12:00", "18:00", "Now"],
+          returnEur: "+€18,40",
+          returnPct: "+4,4%"
+        },
+        "1w": {
+          eur: [0, -4.2, 2.8, 6.1, 11.5, 8.3, 18.4],
+          pct: [0, -1.0, 0.7, 1.5, 2.7, 2.0, 4.4],
+          xLabels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          returnEur: "+€18,40",
+          returnPct: "+4,4%"
+        },
+        "1m": {
+          eur: [0, 5.2, -2.1, 8.4, 14.2, 22.6, 18.4],
+          pct: [0, 1.3, -0.5, 2.0, 3.4, 5.4, 4.4],
+          xLabels: ["W1", "W2", "W3", "W4", "W5"],
+          returnEur: "+€18,40",
+          returnPct: "+4,4%"
+        },
+        "3m": {
+          eur: [0, -8.2, 4.5, 12.1, 28.4, 18.4],
+          pct: [0, -2.0, 1.1, 2.9, 6.8, 4.4],
+          xLabels: ["Jul", "Aug", "Sep"],
+          returnEur: "+€47,05",
+          returnPct: "+12,6%"
+        },
+        "ytd": {
+          eur: [0, -12.4, -4.8, 6.2, 18.4],
+          pct: [0, -3.0, -1.1, 1.5, 4.4],
+          xLabels: ["Jan", "Apr", "Jul", "Sep"],
+          returnEur: "+€18,40",
+          returnPct: "+4,4%"
+        },
+        "1y": {
+          eur: [0, -18.2, -6.4, 8.8, 22.1, 18.4],
+          pct: [0, -4.3, -1.5, 2.1, 5.3, 4.4],
+          xLabels: ["Oct", "Jan", "Apr", "Jul", "Sep"],
+          returnEur: "+€18,40",
+          returnPct: "+4,4%"
+        }
+      };
+
+      var state = { unit: "eur", period: "1d" };
+
+      function fmtY(val, unit) {
+        if (unit === "pct") {
+          return (val >= 0 ? "+" : "") + val.toFixed(1).replace(".", ",") + "%";
+        }
+        return (val >= 0 ? "+€" : "−€") + Math.abs(val).toFixed(0).replace(".", ",");
+      }
+
+      function buildPath(values) {
+        var min = Math.min.apply(null, values.concat([0]));
+        var max = Math.max.apply(null, values.concat([0]));
+        var pad = (max - min) * 0.15 || 1;
+        min -= pad;
+        max += pad;
+        var range = max - min || 1;
+        var n = values.length;
+        var pts = values.map(function (v, i) {
+          var x = PAD.l + (i / (n - 1)) * plotW;
+          var y = PAD.t + plotH - ((v - min) / range) * plotH;
+          return { x: x, y: y, v: v };
+        });
+        var line = pts.map(function (p, i) {
+          return (i === 0 ? "M" : "L") + p.x.toFixed(1) + " " + p.y.toFixed(1);
+        }).join(" ");
+        var baseY = PAD.t + plotH - ((0 - min) / range) * plotH;
+        var area = line + " L" + pts[pts.length - 1].x.toFixed(1) + " " + baseY.toFixed(1)
+          + " L" + pts[0].x.toFixed(1) + " " + baseY.toFixed(1) + " Z";
+        return { line: line, area: area, min: min, max: max, baseY: baseY, pts: pts };
+      }
+
+      function render() {
+        var data = series[state.period];
+        var values = state.unit === "eur" ? data.eur : data.pct;
+        var path = buildPath(values);
+
+        document.getElementById("chartLine").setAttribute("d", path.line);
+        document.getElementById("chartArea").setAttribute("d", path.area);
+        document.getElementById("chartZero").setAttribute("y1", path.baseY);
+        document.getElementById("chartZero").setAttribute("y2", path.baseY);
+
+        var grid = document.getElementById("chartGrid");
+        var yLabels = document.getElementById("chartYLabels");
+        var xLabels = document.getElementById("chartXLabels");
+        grid.innerHTML = "";
+        yLabels.innerHTML = "";
+        xLabels.innerHTML = "";
+
+        for (var g = 0; g <= 4; g++) {
+          var yVal = path.min + (path.max - path.min) * (g / 4);
+          var y = PAD.t + plotH - (g / 4) * plotH;
+          var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("class", "chart-grid-line");
+          line.setAttribute("x1", PAD.l);
+          line.setAttribute("x2", W - PAD.r);
+          line.setAttribute("y1", y);
+          line.setAttribute("y2", y);
+          grid.appendChild(line);
+
+          var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          t.setAttribute("class", "chart-axis-label");
+          t.setAttribute("x", PAD.l - 8);
+          t.setAttribute("y", y + 3);
+          t.setAttribute("text-anchor", "end");
+          t.textContent = fmtY(yVal, state.unit);
+          yLabels.appendChild(t);
+        }
+
+        data.xLabels.forEach(function (lbl, i) {
+          var x = PAD.l + (i / (data.xLabels.length - 1)) * plotW;
+          var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          t.setAttribute("class", "chart-axis-label");
+          t.setAttribute("x", x);
+          t.setAttribute("y", H - 6);
+          t.setAttribute("text-anchor", "middle");
+          t.textContent = lbl;
+          xLabels.appendChild(t);
+        });
+
+        var retEl = document.getElementById("chartReturn");
+        var neg = data.returnEur.indexOf("−") === 0;
+        retEl.className = "chart-period-return " + (neg ? "negative" : "positive");
+        if (state.unit === "eur") {
+          retEl.innerHTML = data.returnEur + '<span class="pct">(' + data.returnPct + ")</span>";
+        } else {
+          retEl.innerHTML = data.returnPct + '<span class="pct">(' + data.returnEur + ")</span>";
+        }
+      }
+
+      function setActive(group, attr, val) {
+        group.querySelectorAll(".seg-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute(attr) === val);
+          if (group.id === "unitToggle") {
+            btn.classList.toggle("accent", btn.getAttribute(attr) === val);
+          }
+        });
+      }
+
+      document.getElementById("unitToggle").addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-unit]");
+        if (!btn) return;
+        state.unit = btn.getAttribute("data-unit");
+        setActive(document.getElementById("unitToggle"), "data-unit", state.unit);
+        render();
+      });
+
+      document.getElementById("periodToggle").addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-period]");
+        if (!btn) return;
+        state.period = btn.getAttribute("data-period");
+        setActive(document.getElementById("periodToggle"), "data-period", state.period);
+        render();
+      });
+
+      render();
+    })();
+  </script>
 </body>
 </html>

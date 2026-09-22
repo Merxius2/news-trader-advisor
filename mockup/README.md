@@ -28,7 +28,8 @@ python3 -m http.server 8765
 ## Bitvavo mockup highlights
 
 - **Trader allocation bar** — €420 / €500 deployed (bot budget cap)
-- **Trader P&L cards** — daily, unrealized, realized, win rate (tagged fills only)
+- **Trader P&L cards** — portfolio, unrealized, win rate
+- **P&L chart** — switch € / % and time ranges (1D, 1W, 1M, 3M, YTD, 1Y)
 - **Trader holdings table** — crypto markets with `advisor-*` order tags
 - **Crypto suggestions** — event types (etf_flow, regulation), source quality (confirmed / rumor)
 - **Watchlist** — `BTC-EUR`, `ETH-EUR`, etc.
