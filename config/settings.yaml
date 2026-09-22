@@ -5,8 +5,8 @@ schedule:
 
 ollama:
   base_url: http://127.0.0.1:11434
-  model: qwen2.5:7b
-  fallback_model: martain7r/finance-llama-8b:q4_k_m
+  model: qwen2:7b
+  fallback_model: qwen2:1.5b
   temperature: 0.2
   timeout_seconds: 120
   prompts_module: crypto
@@ -14,7 +14,7 @@ ollama:
 suggestions:
   min_confidence_for_digest: 0.5
   min_confidence_for_highlight: 0.75
-  max_articles_per_run: 30
+  max_articles_per_run: 3
   rumor_confidence_cap: 0.5
 
 bitvavo:
