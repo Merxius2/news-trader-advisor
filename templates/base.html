@@ -50,6 +50,14 @@
           <span><span class="dot ok"></span>Suggestions</span>
           <span>{{ status.suggestion_count }}</span>
         </div>
+        <div id="hostMetricsPanel"
+             hx-get="/partials/host-metrics"
+             hx-trigger="load, every 15s"
+             hx-swap="innerHTML">
+          {% with host=status.host %}
+          {% include "partials/host_metrics.html" %}
+          {% endwith %}
+        </div>
       </div>
     </aside>
 

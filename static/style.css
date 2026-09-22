@@ -100,13 +100,29 @@
     font-size: 0.75rem;
   }
 
-  .status-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    color: var(--muted);
-  }
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: var(--muted);
+}
+
+.status-section-label {
+  margin: 0.75rem 0 0.45rem;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.status-row .mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+}
+
+.dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
 
   .dot {
     width: 7px;

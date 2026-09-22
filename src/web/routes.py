@@ -19,6 +19,7 @@ from src.web.queries import (
     list_digest_files,
     system_status,
 )
+from src.web.system_metrics import get_host_metrics
 
 router = APIRouter()
 ROOT = Path(__file__).resolve().parents[2]
@@ -149,6 +150,16 @@ def suggestions_partial(request: Request):
         request,
         "partials/suggestions_list.html",
         {"suggestions": suggestions},
+    )
+
+
+@router.get("/partials/host-metrics", response_class=HTMLResponse)
+def host_metrics_partial(request: Request):
+    host = get_host_metrics(sample_cpu=True)
+    return _templates(request).TemplateResponse(
+        request,
+        "partials/host_metrics.html",
+        {"host": host},
     )
 
 

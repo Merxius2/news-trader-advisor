@@ -11,6 +11,7 @@ from typing import Any, Optional
 from src.analyze.ollama_client import OllamaClient
 from src.config_loader import Settings, WatchlistConfig, load_settings, load_watchlist
 from src.web.bot_state import bot_status_dict
+from src.web.system_metrics import get_host_metrics
 
 
 def _parse_ts(value: Optional[str]) -> Optional[datetime]:
@@ -214,6 +215,7 @@ def system_status(conn: sqlite3.Connection, settings: Settings) -> dict[str, Any
         "article_count": article_count,
         "suggestion_count": suggestion_count,
         "bot": bot,
+        "host": get_host_metrics(sample_cpu=False),
     }
 
 

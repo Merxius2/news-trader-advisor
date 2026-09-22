@@ -1,0 +1,15 @@
+<div class="status-section-label">Mini-PC</div>
+<div class="status-row">
+  <span><span class="dot {{ host.cpu_level }}"></span>CPU</span>
+  <span class="mono">{{ host.cpu_percent }}%{% if host.load_1m is not none %} · load {{ host.load_1m }}{% endif %}</span>
+</div>
+<div class="status-row">
+  <span><span class="dot {{ host.memory_level }}"></span>Memory</span>
+  <span class="mono">{{ host.memory_used_gb }} / {{ host.memory_total_gb }} GB</span>
+</div>
+{% if host.ollama_memory_gb %}
+<div class="status-row">
+  <span><span class="dot ok"></span>Ollama RAM</span>
+  <span class="mono">{{ host.ollama_memory_gb }} GB</span>
+</div>
+{% endif %}
