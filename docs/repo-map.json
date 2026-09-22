@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-09-22",
+  "repo": {
+    "name": "news-trader-advisor",
+    "description": "Local news-driven trading advisor: Ollama analyzes headlines, IBKR paper tracks P&L, web dashboard. Paper only in v1.",
+    "current_phase": "planning",
+    "next_build_phase": "0",
+    "stack": ["python3.11+", "fastapi", "sqlite", "apscheduler", "ollama", "ib_async", "htmx"]
+  },
+  "agent_bootstrap": {
+    "load_order": [".instructions", "docs/repo-map.json", "docs/PLAN.md"],
+    "instructions_file": ".instructions",
+    "plan_file": "docs/PLAN.md",
+    "mockup_file": "mockup/dashboard.html"
+  },
+  "tree": {
+    ".": {
+      "status": "exists",
+      "purpose": "repo root",
+      "files": {
+        "README.md": { "purpose": "human overview, links to plan and mockup", "read_when": "onboarding" },
+        ".instructions": { "purpose": "agent workflow rules; repo map usage", "read_when": "every_session" },
+        "AGENTS.md": { "purpose": "Cursor auto-load entry; points to .instructions", "read_when": "auto" },
+        ".gitignore": { "purpose": "ignore data/, venv, .env, reports, *.db", "read_when": "adding_paths" },
+        "requirements.txt": { "status": "planned", "phase": "0", "purpose": "python dependencies" },
+        ".env.example": { "status": "planned", "phase": "0", "purpose": "env var template (FINNHUB_API_KEY, etc.)" }
+      }
+    },
+    "docs": {
+      "status": "exists",
+      "purpose": "planning and agent reference docs",
+      "files": {
+        "PLAN.md": { "purpose": "full handoff: architecture, phases 0-7, schema, guardrails", "read_when": "implementation_planning" },
+        "repo-map.json": { "purpose": "this file; compact repo index for agents", "read_when": "every_session" }
+      }
+    },
+    "mockup": {
+      "status": "exists",
+      "phase": "done",
+      "purpose": "static dashboard UI target for phases 2-3",
+      "files": {
+        "dashboard.html": { "purpose": "dark-theme dashboard mockup with sample P&L, suggestions, activity", "read_when": "ui_work" },
+        "README.md": { "purpose": "how to serve mockup locally", "read_when": "preview_ui" }
+      }
+    },
+    "config": {
+      "status": "planned",
+      "phase": "0",
+      "purpose": "yaml config: watchlist, news sources, settings",
+      "files": {
+        "watchlist.yaml": { "purpose": "ticker watchlist (AAPL, MSFT, NVDA, ASML, AMZN starter)", "phase": "0" },
+        "sources.yaml": { "purpose": "RSS and Finnhub source definitions", "phase": "1" },
+        "settings.yaml": { "purpose": "schedule, ollama, ibkr, server defaults", "phase": "0" }
+      }
+    },
+    "src": {
+      "status": "planned",
+      "phase": "0",
+      "purpose": "python application package",
+      "entry": "src/main.py",
+      "files": {
+        "main.py": { "purpose": "CLI entry: --help, run-once, run-daemon", "phase": "0" },
+        "scheduler.py": { "purpose": "APScheduler hourly + poll jobs", "phase": "1" }
+      },
+      "packages": {
+        "ingest": { "phase": "1", "purpose": "rss_fetcher, finnhub_fetcher, deduper", "files": ["rss_fetcher.py", "finnhub_fetcher.py", "deduper.py"] },
+        "enrich": { "phase": "1", "purpose": "ticker_mapper — map headlines to watchlist tickers", "files": ["ticker_mapper.py"] },
+        "analyze": { "phase": "1", "purpose": "ollama_client, prompts, JSON parser", "files": ["ollama_client.py", "prompts.py", "parser.py"] },
+        "suggest": { "phase": "1", "purpose": "rules_engine, rollup, confidence filters", "files": ["rules_engine.py", "rollup.py"] },
+        "ibkr": { "phase": "3", "purpose": "ib_async connector, position/P&L sync (read-only first)", "files": ["connector.py", "sync.py"] },
+        "output": { "phase": "1", "purpose": "markdown hourly reports, optional notifier", "files": ["reporter.py", "notifier.py"] },
+        "storage": { "phase": "0", "purpose": "sqlite db, pydantic models, migrations", "files": ["db.py", "models.py", "migrations.py"] },
+        "web": { "phase": "2", "purpose": "FastAPI routes, templates, HTMX dashboard", "files": ["app.py", "routes.py"] }
+      }
+    },
+    "templates": { "status": "planned", "phase": "2", "purpose": "Jinja2 HTML templates for dashboard pages" },
+    "static": { "status": "planned", "phase": "2", "purpose": "CSS/JS assets for web dashboard" },
+    "reports": { "status": "planned", "phase": "1", "purpose": "generated markdown hourly digests (gitignored content)", "pattern": "YYYY-MM-DD_HH.md" },
+    "data": { "status": "planned", "phase": "0", "purpose": "sqlite database advisor.db (gitignored)" },
+    "tests": { "status": "planned", "phase": "1", "purpose": "pytest unit and integration tests" }
+  },
+  "data_flow": [
+    "news sources (RSS, Finnhub) → ingest → dedupe → SQLite articles",
+    "articles → ticker_mapper (watchlist) → ollama → structured JSON → rules_engine → suggestions",
+    "scheduler: hourly batch (:00) + poll every 3-5 min",
+    "FastAPI dashboard ← SQLite (activity, suggestions, watchlist)",
+    "IB Gateway paper (port 4002) ← ib_async sync (phase 3+) → ibkr_positions, P&L cards"
+  ],
+  "phases": {
+    "0": { "name": "setup", "status": "not_started", "deliverable": "python -m src.main --help; DB init; config yaml" },
+    "1": { "name": "news_suggestions", "status": "not_started", "deliverable": "daemon ingests news; structured suggestions with reasoning" },
+    "2": { "name": "dashboard", "status": "not_started", "deliverable": "FastAPI dashboard matching mockup; activity + suggestions" },
+    "3": { "name": "ibkr_readonly", "status": "not_started", "deliverable": "live paper P&L on dashboard; no orders" },
+    "4": { "name": "link_suggestions_positions", "status": "not_started" },
+    "5": { "name": "enrichment_quality", "status": "not_started" },
+    "6": { "name": "auto_paper_execution", "status": "not_started" },
+    "7": { "name": "live_opt_in", "status": "future" }
+  },
+  "db_tables": {
+    "phase_0_1": ["articles", "analyses", "suggestions", "activity_log", "runs"],
+    "phase_3_plus": ["ibkr_snapshots", "ibkr_positions", "ibkr_executions", "suggestion_trades"]
+  },
+  "commands": {
+    "mockup_preview": "cd mockup && python3 -m http.server 8765",
+    "mockup_url": "http://localhost:8765/dashboard.html",
+    "planned_cli": {
+      "help": "python -m src.main --help",
+      "run_once": "python -m src.main run-once",
+      "run_daemon": "python -m src.main run-daemon",
+      "web_server": "uvicorn src.web.app:app --host 0.0.0.0 --port 8080"
+    }
+  },
+  "guardrails": [
+    "paper_only_v1",
+    "no_auto_execution_until_phase_6",
+    "suggestions_not_financial_advice",
+    "validate_llm_json_with_pydantic",
+    "confidence_below_0.6_log_only",
+    "live_account_separate_config_off_by_default"
+  ],
+  "topic_index": {
+    "architecture": ["docs/PLAN.md#3-architecture", "docs/repo-map.json:data_flow"],
+    "news_ingestion": ["docs/PLAN.md#4-news-ingestion", "src/ingest/"],
+    "ollama_json_schema": ["docs/PLAN.md#5-ollama-analysis", "src/analyze/"],
+    "rules_engine": ["docs/PLAN.md#5-ollama-analysis", "src/suggest/rules_engine.py"],
+    "ibkr_paper": ["docs/PLAN.md#6-ibkr-paper-account", "src/ibkr/"],
+    "dashboard_ui": ["mockup/dashboard.html", "docs/PLAN.md#7-dashboard-mockup-exists", "src/web/"],
+    "sqlite_schema": ["docs/PLAN.md#8-database-schema-sqlite", "src/storage/"],
+    "config_defaults": ["docs/PLAN.md#12-config-defaults-suggested", "config/settings.yaml"],
+    "implementation_order": ["docs/PLAN.md#18-recommended-build-order-for-the-agent", "docs/repo-map.json:phases"],
+    "agent_workflow": [".instructions", "AGENTS.md"]
+  },
+  "update_triggers": [
+    "new top-level directory or package added",
+    "file moved or renamed",
+    "phase status changes (not_started → in_progress → done)",
+    "new entry point, CLI command, or config file",
+    "db schema table added",
+    "significant architecture change"
+  ]
+}

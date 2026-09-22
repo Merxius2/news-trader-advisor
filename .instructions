@@ -1,0 +1,61 @@
+# Agent instructions — News Trader Advisor
+
+These instructions apply to every agent session on this repository (IDE, CLI, Cloud Agent).
+
+## Bootstrap (do this first)
+
+1. **Load the repo map** — read `docs/repo-map.json` before broad exploration (`grep`, `glob`, recursive directory walks).
+2. **Use the map for planning** — consult `topic_index`, `tree`, `phases`, and `data_flow` to decide which paths to read. Do not re-discover structure from scratch.
+3. **Load the plan when implementing** — read `docs/PLAN.md` (or the section referenced in `topic_index`) before starting phase work.
+4. **UI work** — open `mockup/dashboard.html` (via repo map) as the visual target for dashboard phases.
+
+## Token-saving rules
+
+- **Prefer the repo map over scanning the repo.** Use `tree` and `topic_index` to locate files; read only the files you need.
+- **Do not read `docs/PLAN.md` in full** unless planning or implementing — use `topic_index` to jump to the relevant section.
+- **Do not list directories recursively** if the repo map already describes them. Trust the map unless you suspect it is stale.
+- **Before adding a new package or top-level directory**, check `tree` for the planned location in `docs/PLAN.md` section 11.
+
+## Implementation rules
+
+- Follow phase order in `docs/PLAN.md` section 18: Phase 0+1 → 2 → 3 → 4 → 5+.
+- Match existing conventions in surrounding code; keep diffs minimal.
+- Paper trading only until Phase 6; never enable live trading in v1.
+- Every suggestion must include visible reasoning (see guardrails in `docs/PLAN.md` and `repo-map.json`).
+- Branch names for cloud agents: `cursor/<descriptive-name>-e0ae`.
+
+## Repo map maintenance (required)
+
+Update `docs/repo-map.json` in the **same commit** when you:
+
+- Add, remove, or rename a top-level directory or `src/` package
+- Add a new entry point, CLI command, config file, or db table
+- Change phase status (`not_started` → `in_progress` → `done`)
+- Move files in ways that invalidate `tree` paths
+
+When updating the map:
+
+1. Set `last_updated` to today's date (`YYYY-MM-DD`).
+2. Update `tree` entries: set `status` to `exists` for new paths; remove or mark deleted paths.
+3. Update `phases` status for the phase you are working on.
+4. Update `repo.current_phase` / `repo.next_build_phase` if appropriate.
+5. Add new entries to `topic_index` if you introduce a new subsystem.
+6. Keep the JSON valid and compact — this file is loaded every session.
+
+If unsure whether the map needs an update: **update it**. Stale maps waste more tokens than a small JSON edit.
+
+## Key files (quick reference)
+
+| File | Role |
+|------|------|
+| `docs/repo-map.json` | Compact repo index — load every session |
+| `docs/PLAN.md` | Full architecture and phase plan |
+| `.instructions` | This file — workflow rules |
+| `mockup/dashboard.html` | Dashboard UI target |
+| `README.md` | Human-facing overview |
+
+## Cloud Agent notes
+
+- Push with `git push -u origin <branch>`.
+- Create/update PRs via the ManagePullRequest tool.
+- Commit and push before testing; update PR after changes.
