@@ -12,7 +12,8 @@ Agents should load [`.instructions`](.instructions) and [`docs/repo-map.json`](d
 
 After changes merge to `main`, **update the mini-PC** — see [`docs/mini-pc.md`](docs/mini-pc.md) or run `./scripts/sync-mini-pc.sh`.
 
-- [`docs/PLAN.md`](docs/PLAN.md) — full project handoff: architecture, phases, schema, guardrails
+- [`docs/PLAN.md`](docs/PLAN.md) — IBKR / stocks handoff: architecture, phases, schema, guardrails
+- [`docs/PLAN-bitvavo.md`](docs/PLAN-bitvavo.md) — Bitvavo / crypto fork (reusable template for both variants)
 - [`docs/mini-pc.md`](docs/mini-pc.md) — clone and sync repo on the mini-PC
 - [`mockup/dashboard.html`](mockup/dashboard.html) — static dashboard preview (sample data)
 - [`mockup/README.md`](mockup/README.md) — how to open the mockup locally
