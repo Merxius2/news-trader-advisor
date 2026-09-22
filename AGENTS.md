@@ -5,7 +5,7 @@ Cursor loads this file automatically. **Follow `.instructions` and load `docs/re
 ## Required bootstrap
 
 1. Read [`.instructions`](.instructions) — workflow, token-saving rules, repo map maintenance.
-2. Read [`docs/repo-map.json`](docs/repo-map.json) — repo structure, phases, topic index. Use it for all planning and exploration before scanning the codebase.
+2. Read [`docs/repo-map.json`](docs/repo-map.json) — symbol index, API routes, DB models, pydantic schemas, UI map, phases. Use `symbol_index` to find classes/functions without scanning the codebase.
 3. When implementing, read the relevant sections of [`docs/PLAN.md`](docs/PLAN.md) (see `topic_index` in the repo map).
 
 ## Project summary
