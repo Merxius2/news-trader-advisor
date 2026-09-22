@@ -273,6 +273,8 @@
     },
     "bitvavo_sections": [
       { "selector": ".trader-badge", "purpose": "trader allocation cap badge in sidebar" },
+      { "selector": ".bot-control-bar", "purpose": "bot status, state pills, start/stop toggle" },
+      { "selector": ".action-log-panel", "purpose": "visual timeline of trades, news, analysis, sync events" },
       { "selector": ".allocation-bar-wrap", "purpose": "deployed EUR vs allocation cap progress bar" },
       { "selector": ".pnl-grid", "purpose": "trader summary cards — portfolio, unrealized P&L, win rate" },
       { "selector": ".perf-chart-panel", "purpose": "trader P&L line chart with €/% toggle and 1D–1Y period selector" },

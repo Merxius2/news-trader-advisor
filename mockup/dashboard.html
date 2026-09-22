@@ -658,6 +658,263 @@
       color: #7dd3fc;
       text-align: center;
     }
+
+    .bot-control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1.15rem;
+      margin-bottom: 1rem;
+    }
+
+    .bot-control-bar.stopped {
+      border-color: rgba(139, 149, 168, 0.35);
+      opacity: 0.92;
+    }
+
+    .bot-status-block {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 0;
+    }
+
+    .bot-status-indicator {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      flex-shrink: 0;
+    }
+
+    .bot-status-indicator.stopped {
+      background: var(--surface2);
+      border-color: var(--border);
+    }
+
+    .bot-pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.5);
+      animation: botPulse 2s infinite;
+    }
+
+    .bot-status-indicator.stopped .bot-pulse {
+      background: var(--muted);
+      animation: none;
+      box-shadow: none;
+    }
+
+    @keyframes botPulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.45); }
+      70% { box-shadow: 0 0 0 10px rgba(34, 211, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
+    }
+
+    .bot-status-text h4 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+
+    .bot-status-text p {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .bot-state-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.45rem;
+    }
+
+    .bot-state-pill {
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid transparent;
+    }
+
+    .bot-state-pill.active {
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.1);
+      border-color: rgba(34, 211, 238, 0.3);
+    }
+
+    .bot-state-pill.inactive {
+      opacity: 0.45;
+    }
+
+    .bot-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .bot-toggle-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .bot-toggle-label.on { color: var(--green); }
+    .bot-toggle-label.off { color: var(--muted); }
+
+    .bot-toggle {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      border: none;
+      border-radius: 999px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .bot-toggle[aria-checked="true"] {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    .bot-toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .bot-toggle[aria-checked="true"] .bot-toggle-knob {
+      transform: translateX(22px);
+      background: var(--green);
+    }
+
+    .action-log-panel {
+      margin-bottom: 1.25rem;
+    }
+
+    .action-log {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .action-log-item {
+      display: grid;
+      grid-template-columns: 72px 88px 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.75rem 1.15rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .action-log-item:last-child { border-bottom: none; }
+
+    .action-log-item::before {
+      content: "";
+      position: absolute;
+      left: 1.45rem;
+      top: 1.65rem;
+      bottom: -0.75rem;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .action-log-item:last-child::before { display: none; }
+
+    .action-log-time {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      padding-top: 0.15rem;
+    }
+
+    .action-log-type {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-top: 0.1rem;
+    }
+
+    .action-log-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 0 3px var(--surface);
+    }
+
+    .action-log-type.trade { color: var(--green); }
+    .action-log-type.trade .action-log-dot { background: var(--green); }
+    .action-log-type.trade.sell { color: var(--red); }
+    .action-log-type.trade.sell .action-log-dot { background: var(--red); }
+
+    .action-log-type.news { color: var(--blue); }
+    .action-log-type.news .action-log-dot { background: var(--blue); }
+
+    .action-log-type.analysis { color: var(--purple); }
+    .action-log-type.analysis .action-log-dot { background: var(--purple); }
+
+    .action-log-type.sync { color: var(--cyan); }
+    .action-log-type.sync .action-log-dot { background: var(--cyan); }
+
+    .action-log-type.system { color: var(--amber); }
+    .action-log-type.system .action-log-dot { background: var(--amber); }
+
+    .action-log-type.idle { color: var(--muted); }
+    .action-log-type.idle .action-log-dot { background: var(--muted); }
+
+    .action-log-body {
+      font-size: 0.8rem;
+      color: #b8c0d0;
+      line-height: 1.45;
+    }
+
+    .action-log-body strong { color: var(--text); font-weight: 600; }
+    .action-log-body .detail {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    @media (max-width: 700px) {
+      .action-log-item {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+      }
+      .action-log-item::before { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -698,6 +955,30 @@
         <div class="actions">
           <button class="btn">Run news now</button>
           <button class="btn btn-primary">Sync Bitvavo</button>
+        </div>
+      </div>
+
+      <div class="bot-control-bar" id="botControlBar">
+        <div class="bot-status-block">
+          <div class="bot-status-indicator" id="botStatusIndicator">
+            <span class="bot-pulse"></span>
+          </div>
+          <div class="bot-status-text">
+            <h4 id="botStatusTitle">Reading news</h4>
+            <p id="botStatusDetail">Polling CoinDesk, The Block, Cointelegraph for watchlist markets</p>
+            <div class="bot-state-pills" id="botStatePills">
+              <span class="bot-state-pill" data-state="idle">Idle</span>
+              <span class="bot-state-pill active" data-state="news">Reading news</span>
+              <span class="bot-state-pill" data-state="analysis">Analyzing</span>
+              <span class="bot-state-pill" data-state="trading">Trading</span>
+            </div>
+          </div>
+        </div>
+        <div class="bot-toggle-wrap">
+          <span class="bot-toggle-label on" id="botToggleLabel">Bot running</span>
+          <button type="button" class="bot-toggle" id="botToggle" role="switch" aria-checked="true" aria-label="Trading bot on/off">
+            <span class="bot-toggle-knob"></span>
+          </button>
         </div>
       </div>
 
@@ -780,6 +1061,79 @@
             <div class="time" id="chartTipTime"></div>
             <div class="val" id="chartTipVal"></div>
             <div class="alt" id="chartTipAlt"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel action-log-panel">
+        <div class="panel-header">
+          Bot activity log
+          <span class="badge trader">Trades &amp; actions</span>
+        </div>
+        <div class="action-log" id="actionLog">
+          <div class="action-log-item">
+            <span class="action-log-time">14:02</span>
+            <span class="action-log-type sync"><span class="action-log-dot"></span>Sync</span>
+            <span class="action-log-body">
+              <strong>Bitvavo sync complete</strong> — trader €420 / €500, reconcile OK
+              <span class="detail">3 tagged positions · 0 drift</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">14:01</span>
+            <span class="action-log-type trade"><span class="action-log-dot"></span>Trade</span>
+            <span class="action-log-body">
+              <strong>Buy BTC-EUR</strong> — €40,00 limit @ €58.100 · filled
+              <span class="detail">advisor-sugg-55 · suggestion ETF inflow headline</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">13:59</span>
+            <span class="action-log-type analysis"><span class="action-log-dot"></span>Analysis</span>
+            <span class="action-log-body">
+              <strong>Headline analyzed</strong> — ETF inflow → would_buy BTC-EUR (0.81)
+              <span class="detail">Ollama 2.1s · CryptoAnalysisResult validated</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">13:57</span>
+            <span class="action-log-type news"><span class="action-log-dot"></span>News</span>
+            <span class="action-log-body">
+              <strong>New headline ingested</strong> — CoinDesk RSS · Spot Bitcoin ETF inflows
+              <span class="detail">dedupe OK · queued for analysis</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">13:54</span>
+            <span class="action-log-type news"><span class="action-log-dot"></span>News</span>
+            <span class="action-log-body">
+              <strong>Reading news feeds</strong> — polling crypto sources for BTC, ETH, SOL
+              <span class="detail">12 articles checked · 1 new</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">13:51</span>
+            <span class="action-log-type trade sell"><span class="action-log-dot"></span>Trade</span>
+            <span class="action-log-body">
+              <strong>Sell SOL-EUR</strong> — 0,4 @ €142,80 · filled (take profit)
+              <span class="detail">advisor-51 · realized +€2,10</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">13:00</span>
+            <span class="action-log-type system"><span class="action-log-dot"></span>System</span>
+            <span class="action-log-body">
+              <strong>Hourly digest generated</strong> — 9 articles, 3 suggestions
+              <span class="detail">saved to digests · trader sub-ledger unchanged</span>
+            </span>
+          </div>
+          <div class="action-log-item">
+            <span class="action-log-time">12:58</span>
+            <span class="action-log-type idle"><span class="action-log-dot"></span>Idle</span>
+            <span class="action-log-body">
+              <strong>Waiting for next poll</strong> — no new headlines in queue
+              <span class="detail">next news cycle in 42s</span>
+            </span>
           </div>
         </div>
       </div>
@@ -974,6 +1328,100 @@
       </div>
     </main>
   </div>
+  <script>
+    (function () {
+      var botStates = {
+        idle: {
+          title: "Idle",
+          detail: "Waiting for next news poll — no active tasks"
+        },
+        news: {
+          title: "Reading news",
+          detail: "Polling CoinDesk, The Block, Cointelegraph for watchlist markets"
+        },
+        analysis: {
+          title: "Analyzing headline",
+          detail: "Ollama evaluating ETF inflow article for BTC-EUR signal"
+        },
+        trading: {
+          title: "Trading",
+          detail: "Submitting limit buy BTC-EUR €40 · tag advisor-sugg-55"
+        }
+      };
+
+      var botRunning = true;
+      var currentState = "news";
+      var controlBar = document.getElementById("botControlBar");
+      var statusIndicator = document.getElementById("botStatusIndicator");
+      var statusTitle = document.getElementById("botStatusTitle");
+      var statusDetail = document.getElementById("botStatusDetail");
+      var statePills = document.getElementById("botStatePills");
+      var toggleBtn = document.getElementById("botToggle");
+      var toggleLabel = document.getElementById("botToggleLabel");
+      var actionLog = document.getElementById("actionLog");
+
+      function padTime(d) {
+        return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+      }
+
+      function prependLog(type, typeLabel, title, detail, extraClass) {
+        var item = document.createElement("div");
+        item.className = "action-log-item";
+        item.innerHTML =
+          '<span class="action-log-time">' + padTime(new Date()) + '</span>' +
+          '<span class="action-log-type ' + type + (extraClass ? " " + extraClass : "") + '">' +
+          '<span class="action-log-dot"></span>' + typeLabel + '</span>' +
+          '<span class="action-log-body"><strong>' + title + '</strong>' +
+          (detail ? '<span class="detail">' + detail + "</span>" : "") + "</span>";
+        actionLog.insertBefore(item, actionLog.firstChild);
+      }
+
+      function setBotState(state) {
+        if (!botRunning && state !== "idle") return;
+        currentState = state;
+        var info = botStates[state];
+        statusTitle.textContent = info.title;
+        statusDetail.textContent = info.detail;
+        statePills.querySelectorAll(".bot-state-pill").forEach(function (pill) {
+          var s = pill.getAttribute("data-state");
+          pill.classList.toggle("active", s === state);
+          pill.classList.toggle("inactive", botRunning && s !== state);
+        });
+      }
+
+      function setBotRunning(running) {
+        botRunning = running;
+        toggleBtn.setAttribute("aria-checked", running ? "true" : "false");
+        toggleLabel.textContent = running ? "Bot running" : "Bot stopped";
+        toggleLabel.className = "bot-toggle-label " + (running ? "on" : "off");
+        controlBar.classList.toggle("stopped", !running);
+        statusIndicator.classList.toggle("stopped", !running);
+        if (running) {
+          setBotState("news");
+          prependLog("system", "System", "Bot started", "Resuming news poll and trader loop");
+        } else {
+          setBotState("idle");
+          statePills.querySelectorAll(".bot-state-pill").forEach(function (pill) {
+            pill.classList.remove("active", "inactive");
+            if (pill.getAttribute("data-state") === "idle") pill.classList.add("active");
+          });
+          prependLog("system", "System", "Bot stopped", "Trading and news automation paused by user");
+        }
+      }
+
+      toggleBtn.addEventListener("click", function () {
+        setBotRunning(toggleBtn.getAttribute("aria-checked") !== "true");
+      });
+
+      statePills.addEventListener("click", function (e) {
+        var pill = e.target.closest("[data-state]");
+        if (!pill || !botRunning) return;
+        setBotState(pill.getAttribute("data-state"));
+      });
+
+      setBotState("news");
+    })();
+  </script>
   <script>
     (function () {
       var PAD = { l: 52, r: 20, t: 12, b: 28 };

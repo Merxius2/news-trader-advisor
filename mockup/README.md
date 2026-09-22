@@ -27,6 +27,8 @@ python3 -m http.server 8765
 
 ## Bitvavo mockup highlights
 
+- **Bot control bar** — live status (idle, reading news, analyzing, trading) + start/stop toggle
+- **Bot activity log** — visual timeline of trades, news, analysis, and system events
 - **Trader allocation bar** — €420 / €500 deployed (bot budget cap)
 - **Trader P&L cards** — portfolio, unrealized, win rate
 - **P&L chart** — switch € / % and time ranges (1D, 1W, 1M, 3M, YTD, 1Y)
