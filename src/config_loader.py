@@ -35,6 +35,8 @@ class SuggestionsConfig:
     min_confidence_for_digest: float = 0.5
     min_confidence_for_highlight: float = 0.75
     max_articles_per_run: int = 30
+    backlog_skip_ingest_threshold: int = 10
+    backlog_max_articles_per_run: int = 5
     rumor_confidence_cap: float = 0.5
 
 

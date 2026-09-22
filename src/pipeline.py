@@ -86,7 +86,7 @@ class IngestPipeline:
         self.conn.commit()
         return CycleResult(fetched=len(combined), stored=stored, analyzed=0, suggestions=0)
 
-    def run_analysis_cycle(self) -> CycleResult:
+    def run_analysis_cycle(self, limit: int | None = None) -> CycleResult:
         if not self.ollama.health_check():
             log_activity(
                 self.conn,
@@ -97,9 +97,8 @@ class IngestPipeline:
             self.conn.commit()
             return CycleResult(fetched=0, stored=0, analyzed=0, suggestions=0)
 
-        pending = fetch_unanalyzed_articles(
-            self.conn, self.settings.suggestions.max_articles_per_run
-        )
+        batch_limit = limit if limit is not None else self.settings.suggestions.max_articles_per_run
+        pending = fetch_unanalyzed_articles(self.conn, batch_limit)
         analyzed = 0
         suggestions_count = 0
 

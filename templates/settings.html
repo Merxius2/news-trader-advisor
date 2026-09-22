@@ -12,6 +12,8 @@
   <p><strong>Hourly digest:</strong> :{{ "%02d"|format(settings.schedule.hourly_digest_minute) }} UTC</p>
   <p><strong>Min confidence (digest):</strong> {{ settings.suggestions.min_confidence_for_digest }}</p>
   <p><strong>Max articles per run:</strong> {{ settings.suggestions.max_articles_per_run }}</p>
+  <p><strong>Backlog skip ingest at:</strong> {{ settings.suggestions.backlog_skip_ingest_threshold }} unanalyzed</p>
+  <p><strong>Backlog analyze batch:</strong> {{ settings.suggestions.backlog_max_articles_per_run }}</p>
   <p><strong>Trader allocation:</strong> €{{ settings.trader.allocation_eur }}</p>
   <p><strong>Database:</strong> {{ settings.database.path }}</p>
 </div>

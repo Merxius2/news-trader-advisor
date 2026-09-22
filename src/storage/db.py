@@ -105,6 +105,17 @@ def insert_article(conn: sqlite3.Connection, article: NewArticle) -> int | None:
     return int(cur.lastrowid)
 
 
+def count_unanalyzed_articles(conn: sqlite3.Connection) -> int:
+    row = conn.execute(
+        """
+        SELECT COUNT(*) AS n FROM articles a
+        LEFT JOIN analyses an ON an.article_id = a.id
+        WHERE an.id IS NULL
+        """
+    ).fetchone()
+    return int(row["n"]) if row else 0
+
+
 def fetch_unanalyzed_articles(conn: sqlite3.Connection, limit: int) -> list[sqlite3.Row]:
     return conn.execute(
         """
