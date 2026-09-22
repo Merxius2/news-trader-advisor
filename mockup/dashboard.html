@@ -227,9 +227,13 @@
 
     .pnl-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1rem;
       margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 1300px) {
+      .pnl-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
     @media (max-width: 1100px) {
@@ -530,6 +534,11 @@
       </div>
 
       <div class="pnl-grid">
+        <div class="pnl-card highlight">
+          <div class="label">Trader daily P&amp;L</div>
+          <div class="value positive">+€18,40</div>
+          <div class="sub">+4,4% on trader portfolio · since 00:00 UTC</div>
+        </div>
         <div class="pnl-card highlight">
           <div class="label">Trader portfolio</div>
           <div class="value">€420,00</div>
