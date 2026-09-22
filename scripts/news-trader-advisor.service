@@ -1,0 +1,18 @@
+[Unit]
+Description=News Trader Advisor web dashboard
+After=network.target
+Documentation=https://github.com/Merxius2/news-trader-advisor/blob/main/docs/mini-pc.md
+
+[Service]
+Type=simple
+User=sylvester
+Group=sylvester
+WorkingDirectory=/home/sylvester/news-trader-advisor
+ExecStart=/home/sylvester/news-trader-advisor/scripts/serve-dashboard.sh
+Restart=on-failure
+RestartSec=5
+Environment=DASHBOARD_HOST=0.0.0.0
+Environment=DASHBOARD_PORT=8080
+
+[Install]
+WantedBy=multi-user.target

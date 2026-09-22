@@ -60,6 +60,34 @@ Whenever code is merged or pushed to **`main`**:
 
 Agents completing deployable work should **sync the mini-PC** or explicitly tell the user to run the update commands.
 
+## Web dashboard (view from Mac)
+
+The dashboard runs on the mini-PC and is reachable on your LAN.
+
+| Phase | URL (from Mac) | What runs |
+|-------|----------------|-----------|
+| Now (mockup) | `http://192.168.1.30:8080/dashboard.html` | Static mockup via `scripts/serve-dashboard.sh` |
+| Phase 2+ | same host/port | FastAPI app (auto-switches when `src/web/app.py` exists) |
+
+### Install / enable (one-time on mini-PC)
+
+```bash
+cd ~/news-trader-advisor
+bash scripts/install-dashboard-service.sh
+```
+
+This installs `news-trader-advisor.service` (systemd), binds **0.0.0.0:8080**, and opens UFW port 8080.
+
+### Service commands
+
+```bash
+sudo systemctl status news-trader-advisor
+sudo systemctl restart news-trader-advisor   # after git pull
+sudo systemctl stop news-trader-advisor
+```
+
+After pulling updates that change the mockup or web app, restart the service.
+
 ## Config reference
 
 | Variable | Example | Description |

@@ -11,7 +11,12 @@
     "clone_script": "scripts/clone-on-mini-pc.sh",
     "config_example": "config/mini-pc.env.example",
     "config_local": "config/mini-pc.env",
-    "workflow": "After merge to main: git pull on mini-PC OR run scripts/sync-mini-pc.sh from dev machine"
+    "workflow": "After merge to main: git pull on mini-PC OR run scripts/sync-mini-pc.sh from dev machine",
+    "dashboard_url_lan": "http://192.168.1.30:8080/dashboard.html",
+    "dashboard_port": 8080,
+    "systemd_service": "news-trader-advisor.service",
+    "serve_script": "scripts/serve-dashboard.sh",
+    "install_service_script": "scripts/install-dashboard-service.sh"
   },
   "repo": {
     "name": "news-trader-advisor",
