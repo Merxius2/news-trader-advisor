@@ -406,7 +406,7 @@ Rate limit: **1000 weight points / minute** per IP or API key — budget sync jo
 
 ## 8. Dashboard
 
-Reuse layout from [`mockup/dashboard.html`](../mockup/dashboard.html) with crypto labels:
+Static mockup: [`mockup/dashboard-bitvavo.html`](../mockup/dashboard-bitvavo.html) — dark theme, sample data, trader allocation UI.
 
 | Page | Content |
 |---|---|
@@ -684,7 +684,7 @@ server:
 
 | Asset | Location | Adapt for Bitvavo fork |
 |---|---|---|
-| Dashboard mockup layout | `mockup/dashboard.html` | Relabel stocks → crypto markets, EUR formatting |
+| Dashboard mockup | `mockup/dashboard-bitvavo.html` | Trader allocation bar, dual P&L rows, crypto markets |
 | Agent workflow | `.instructions`, `docs/repo-map.json` | Add fork entry in repo map |
 | Deployment scripts | `scripts/` | Same mini-PC sync flow |
 | IBKR plan (reference) | `docs/PLAN.md` | Parallel structure for stock fork |
