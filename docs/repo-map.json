@@ -165,8 +165,9 @@
     "activity_log": {
       "phase": "0",
       "orm_class": "ActivityLogEntry",
-      "columns": ["id", "timestamp", "level", "message"],
-      "levels": ["info", "warn", "error"]
+      "columns": ["id", "timestamp", "level", "event_type", "message", "metadata_json"],
+      "levels": ["info", "warn", "error"],
+      "event_type_enum": ["trade", "news", "analysis", "sync", "system", "idle"]
     },
     "runs": {
       "phase": "0",
@@ -272,15 +273,19 @@
       "templates/base.html": "shared sidebar, status panel, paper badge"
     },
     "bitvavo_sections": [
-      { "selector": ".trader-badge", "purpose": "trader allocation cap badge in sidebar" },
-      { "selector": ".bot-control-bar", "purpose": "bot status, state pills, start/stop toggle" },
-      { "selector": ".action-log-panel", "purpose": "sole activity feed — timeline with type filter toolbar (#actionLogFilter)" },
-      { "selector": ".allocation-bar-wrap", "purpose": "deployed EUR vs allocation cap progress bar" },
-      { "selector": ".pnl-grid", "purpose": "trader summary cards — portfolio, unrealized P&L, win rate" },
-      { "selector": ".perf-chart-panel", "purpose": "trader P&L line chart with €/% toggle and 1D–1Y period selector" },
-      { "selector": ".tag-advisor", "purpose": "advisor-* order tag on trader fills" },
-      { "selector": ".account-note", "purpose": "manual holdings on same account excluded from trader qty" }
+      { "selector": ".sidebar", "purpose": "logo, trader badge, nav, status panel — Phase 2–4" },
+      { "selector": ".top-bar", "purpose": "page title, sync meta, Run news now + Sync Bitvavo — Phase 2–3" },
+      { "selector": ".bot-control-bar", "purpose": "bot status, state pills, start/stop toggle — Phase 2, 6" },
+      { "selector": ".action-log-panel", "purpose": "sole activity feed — timeline with type filter toolbar (#actionLogFilter) — Phase 2–6" },
+      { "selector": ".allocation-bar-wrap", "purpose": "deployed EUR vs allocation cap progress bar — Phase 4" },
+      { "selector": ".pnl-grid", "purpose": "trader summary cards — portfolio, unrealized P&L, win rate — Phase 4–5" },
+      { "selector": ".perf-chart-panel", "purpose": "trader P&L line chart with €/% toggle and 1D–1Y period selector — Phase 5" },
+      { "selector": ".suggestion", "purpose": "crypto suggestion card with reasoning, would-do, risks — Phase 1–2" },
+      { "selector": ".watch-item", "purpose": "watchlist market row with signal — Phase 2" },
+      { "selector": ".tag-advisor", "purpose": "advisor-* order tag on trader fills — Phase 4" },
+      { "selector": ".account-note", "purpose": "manual holdings on same account excluded from trader qty — Phase 4" }
     ],
+    "dashboard_plan_map": "README.md#dashboard-mockup--plan-mapping",
     "bitvavo_maps_to_templates": {
       "templates/dashboard.html": "Bitvavo fork phase 2 — replicate mockup/dashboard.html layout",
       "templates/base.html": "shared sidebar, trader badge, allocation status panel"
@@ -607,7 +612,8 @@
     "rules_engine": ["RulesEngine", "src/suggest/rules_engine.py"],
     "ibkr_paper": ["IbkrConnector", "IbkrSyncService", "db_models.ibkr_*"],
     "dashboard_ui": ["mockup_ui", "api_routes", "templates/dashboard.html"],
-    "bitvavo_dashboard_ui": ["mockup_ui.bitvavo", "mockup_ui.bitvavo_sections", "docs/PLAN-bitvavo.md#8-dashboard"],
+    "bitvavo_dashboard_ui": ["mockup_ui.bitvavo", "mockup_ui.bitvavo_sections", "mockup_ui.dashboard_plan_map", "docs/PLAN-bitvavo.md#8-dashboard", "README.md#dashboard-mockup--plan-mapping"],
+    "dashboard_mockup_plan": ["README.md#dashboard-mockup--plan-mapping", "docs/PLAN-bitvavo.md#82-home-dashboard-components-mockup--backend"],
     "sqlite_schema": ["db_models"],
     "config_defaults": ["config/settings.yaml", "Settings"],
     "pipeline_orchestration": ["IngestPipeline", "SchedulerService", "src/pipeline.py"],

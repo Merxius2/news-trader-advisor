@@ -27,14 +27,17 @@ python3 -m http.server 8765
 
 ## Bitvavo mockup highlights
 
-- **Bot control bar** — live status (idle, reading news, analyzing, trading) + start/stop toggle
-- **Activity log** — visual timeline with filters (All, Trade, News, Analysis, Sync, System, Idle)
-- **Trader allocation bar** — €420 / €500 deployed (bot budget cap)
-- **Trader P&L cards** — portfolio, unrealized, win rate
-- **P&L chart** — switch € / % and time ranges (1D, 1W, 1M, 3M, YTD, 1Y)
-- **Trader holdings table** — crypto markets with `advisor-*` order tags
-- **Crypto suggestions** — event types (etf_flow, regulation), source quality (confirmed / rumor)
-- **Watchlist** — `BTC-EUR`, `ETH-EUR`, etc.
+See [`README.md`](../README.md#dashboard-mockup--plan-mapping) and [`docs/PLAN-bitvavo.md` §8](../docs/PLAN-bitvavo.md#8-dashboard) for full component → phase mapping.
+
+| Component | Phase |
+|---|---|
+| Sidebar, status panel, top bar actions | 2–4 |
+| Bot control bar + start/stop toggle | 2, 6 |
+| Activity log + type filters | 2–6 |
+| Suggestions + reasoning, watchlist | 2 |
+| Trader allocation bar, P&L cards, holdings table | 4 |
+| P&L chart (€ / %, 1D–1Y, hover) | 5 |
+| Account overview (nav page, not on home) | 3 |
 
 ## IBKR mockup highlights
 
