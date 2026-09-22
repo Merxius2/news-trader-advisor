@@ -1,0 +1,14 @@
+rss:
+  - name: CoinDesk
+    url: https://www.coindesk.com/arc/outboundfeeds/rss/
+  - name: Cointelegraph
+    url: https://cointelegraph.com/rss
+  - name: The Block
+    url: https://www.theblock.co/rss.xml
+  - name: Decrypt
+    url: https://decrypt.co/feed
+
+cryptocompare:
+  enabled: false
+  # Set CRYPTOCOMPARE_API_KEY in .env when enabled
+  categories: BTC,ETH,SOL

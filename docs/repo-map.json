@@ -15,7 +15,7 @@
       "capital_model": "trader_allocation_sub_ledger",
       "isolation": "tagged_orders",
       "client_order_id_prefix": "advisor",
-      "status": "planning"
+      "status": "in_progress"
     }
   },
   "deployment": {
@@ -42,8 +42,9 @@
   "repo": {
     "name": "news-trader-advisor",
     "description": "Local news-driven trading advisor: Ollama analyzes headlines, IBKR paper tracks P&L, web dashboard. Paper only in v1.",
-    "current_phase": "planning",
-    "next_build_phase": "0",
+    "current_phase": "1",
+    "next_build_phase": "2",
+    "active_fork": "bitvavo_crypto",
     "stack": ["python3.11+", "fastapi", "sqlite", "apscheduler", "ollama", "ib_async", "htmx", "pydantic", "pyyaml"]
   },
   "agent_bootstrap": {
@@ -59,53 +60,66 @@
     "Suggestion": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
     "ActivityLogEntry": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
     "RunRecord": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
-    "WouldDo": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "1" },
-    "AnalysisResult": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "1" },
+    "WouldDo": { "file": "src/storage/models.py", "kind": "class", "status": "exists", "phase": "1" },
+    "CryptoAnalysisResult": { "file": "src/storage/models.py", "kind": "class", "status": "exists", "phase": "1", "fork": "bitvavo_crypto" },
+    "NewArticle": { "file": "src/storage/models.py", "kind": "class", "status": "exists", "phase": "0" },
+    "ArticleRow": { "file": "src/storage/models.py", "kind": "class", "status": "exists", "phase": "0" },
+    "AnalysisResult": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "1", "fork": "ibkr_stocks" },
     "IbkrSnapshot": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "3" },
     "IbkrPosition": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "3" },
     "IbkrExecution": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "3" },
     "SuggestionTrade": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "4" },
     "Database": { "file": "src/storage/db.py", "kind": "class", "status": "planned", "phase": "0" },
-    "init_db": { "file": "src/storage/db.py", "kind": "function", "status": "planned", "phase": "0" },
-    "get_connection": { "file": "src/storage/db.py", "kind": "function", "status": "planned", "phase": "0" },
-    "run_migrations": { "file": "src/storage/migrations.py", "kind": "function", "status": "planned", "phase": "0" },
-    "load_settings": { "file": "src/config_loader.py", "kind": "function", "status": "planned", "phase": "0" },
-    "Settings": { "file": "src/config_loader.py", "kind": "class", "status": "planned", "phase": "0" },
-    "WatchlistConfig": { "file": "src/config_loader.py", "kind": "class", "status": "planned", "phase": "0" },
-    "main": { "file": "src/main.py", "kind": "function", "status": "planned", "phase": "0" },
-    "cli_run_once": { "file": "src/main.py", "kind": "function", "status": "planned", "phase": "1" },
-    "cli_run_daemon": { "file": "src/main.py", "kind": "function", "status": "planned", "phase": "1" },
-    "SchedulerService": { "file": "src/scheduler.py", "kind": "class", "status": "planned", "phase": "1" },
-    "schedule_hourly_digest": { "file": "src/scheduler.py", "kind": "function", "status": "planned", "phase": "1" },
+    "init_db": { "file": "src/storage/db.py", "kind": "function", "status": "exists", "phase": "0" },
+    "get_connection": { "file": "src/storage/db.py", "kind": "function", "status": "exists", "phase": "0" },
+    "db_session": { "file": "src/storage/db.py", "kind": "function", "status": "exists", "phase": "0" },
+    "run_migrations": { "file": "src/storage/migrations.py", "kind": "function", "status": "exists", "phase": "0" },
+    "load_settings": { "file": "src/config_loader.py", "kind": "function", "status": "exists", "phase": "0" },
+    "load_watchlist": { "file": "src/config_loader.py", "kind": "function", "status": "exists", "phase": "0" },
+    "load_sources": { "file": "src/config_loader.py", "kind": "function", "status": "exists", "phase": "0" },
+    "Settings": { "file": "src/config_loader.py", "kind": "class", "status": "exists", "phase": "0" },
+    "WatchlistConfig": { "file": "src/config_loader.py", "kind": "class", "status": "exists", "phase": "0" },
+    "SourcesConfig": { "file": "src/config_loader.py", "kind": "class", "status": "exists", "phase": "0" },
+    "main": { "file": "src/main.py", "kind": "function", "status": "exists", "phase": "0", "cli": ["init-db", "cache-markets", "run-once", "run-daemon"] },
+    "cli_run_once": { "file": "src/main.py", "kind": "function", "status": "exists", "phase": "1" },
+    "cli_run_daemon": { "file": "src/main.py", "kind": "function", "status": "exists", "phase": "1" },
+    "refresh_markets_cache": { "file": "src/bitvavo/markets_cache.py", "kind": "function", "status": "exists", "phase": "0" },
+    "fetch_markets": { "file": "src/bitvavo/markets_cache.py", "kind": "function", "status": "exists", "phase": "0" },
+    "SchedulerService": { "file": "src/scheduler.py", "kind": "class", "status": "exists", "phase": "1" },
+    "schedule_hourly_digest": { "file": "src/scheduler.py", "kind": "function", "status": "exists", "phase": "1" },
     "schedule_news_poll": { "file": "src/scheduler.py", "kind": "function", "status": "planned", "phase": "2" },
-    "RssFetcher": { "file": "src/ingest/rss_fetcher.py", "kind": "class", "status": "planned", "phase": "1" },
-    "fetch_rss_feeds": { "file": "src/ingest/rss_fetcher.py", "kind": "function", "status": "planned", "phase": "1" },
-    "parse_rss_entry": { "file": "src/ingest/rss_fetcher.py", "kind": "function", "status": "planned", "phase": "1" },
+    "RssFetcher": { "file": "src/ingest/rss_fetcher.py", "kind": "class", "status": "exists", "phase": "1" },
+    "fetch_rss_feeds": { "file": "src/ingest/rss_fetcher.py", "kind": "function", "status": "exists", "phase": "1" },
+    "parse_rss_entry": { "file": "src/ingest/rss_fetcher.py", "kind": "function", "status": "exists", "phase": "1" },
+    "CryptoCompareFetcher": { "file": "src/ingest/cryptocompare_fetcher.py", "kind": "class", "status": "exists", "phase": "1", "fork": "bitvavo_crypto" },
+    "fetch_cryptocompare_news": { "file": "src/ingest/cryptocompare_fetcher.py", "kind": "function", "status": "exists", "phase": "1" },
     "FinnhubFetcher": { "file": "src/ingest/finnhub_fetcher.py", "kind": "class", "status": "planned", "phase": "1" },
     "fetch_finnhub_news": { "file": "src/ingest/finnhub_fetcher.py", "kind": "function", "status": "planned", "phase": "1" },
-    "Deduper": { "file": "src/ingest/deduper.py", "kind": "class", "status": "planned", "phase": "1" },
-    "normalize_url": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
-    "content_hash": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
-    "is_duplicate": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
-    "cluster_near_duplicates": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
-    "TickerMapper": { "file": "src/enrich/ticker_mapper.py", "kind": "class", "status": "planned", "phase": "1" },
+    "filter_new": { "file": "src/ingest/deduper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "normalize_url": { "file": "src/ingest/deduper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "content_hash": { "file": "src/ingest/deduper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "is_duplicate": { "file": "src/ingest/deduper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "cluster_near_duplicates": { "file": "src/ingest/deduper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "MarketMapper": { "file": "src/enrich/market_mapper.py", "kind": "class", "status": "exists", "phase": "1", "fork": "bitvavo_crypto" },
+    "map_markets": { "file": "src/enrich/market_mapper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "extract_base_assets": { "file": "src/enrich/market_mapper.py", "kind": "function", "status": "exists", "phase": "1" },
+    "TickerMapper": { "file": "src/enrich/ticker_mapper.py", "kind": "class", "status": "planned", "phase": "1", "fork": "ibkr_stocks" },
     "map_tickers": { "file": "src/enrich/ticker_mapper.py", "kind": "function", "status": "planned", "phase": "1" },
     "extract_tickers_from_text": { "file": "src/enrich/ticker_mapper.py", "kind": "function", "status": "planned", "phase": "1" },
-    "OllamaClient": { "file": "src/analyze/ollama_client.py", "kind": "class", "status": "planned", "phase": "1" },
-    "analyze_headline": { "file": "src/analyze/ollama_client.py", "kind": "function", "status": "planned", "phase": "1" },
-    "build_analysis_prompt": { "file": "src/analyze/prompts.py", "kind": "function", "status": "planned", "phase": "1" },
-    "SYSTEM_PROMPT": { "file": "src/analyze/prompts.py", "kind": "constant", "status": "planned", "phase": "1" },
-    "parse_analysis_response": { "file": "src/analyze/parser.py", "kind": "function", "status": "planned", "phase": "1" },
-    "validate_analysis_json": { "file": "src/analyze/parser.py", "kind": "function", "status": "planned", "phase": "1" },
-    "RulesEngine": { "file": "src/suggest/rules_engine.py", "kind": "class", "status": "planned", "phase": "1" },
-    "apply_rules": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
-    "filter_by_confidence": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
-    "detect_conflicts": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
-    "validate_watchlist_tickers": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
+    "OllamaClient": { "file": "src/analyze/ollama_client.py", "kind": "class", "status": "exists", "phase": "1" },
+    "analyze_headline": { "file": "src/analyze/ollama_client.py", "kind": "function", "status": "exists", "phase": "1" },
+    "build_crypto_analysis_prompt": { "file": "src/analyze/prompts_crypto.py", "kind": "function", "status": "exists", "phase": "1", "fork": "bitvavo_crypto" },
+    "build_analysis_prompt": { "file": "src/analyze/prompts.py", "kind": "function", "status": "planned", "phase": "1", "fork": "ibkr_stocks" },
+    "SYSTEM_PROMPT": { "file": "src/analyze/prompts.py", "kind": "constant", "status": "planned", "phase": "1", "fork": "ibkr_stocks" },
+    "parse_analysis_response": { "file": "src/analyze/parser.py", "kind": "function", "status": "exists", "phase": "1", "returns": "CryptoAnalysisResult | None" },
+    "validate_analysis_json": { "file": "src/analyze/parser.py", "kind": "function", "status": "exists", "phase": "1" },
+    "RulesEngine": { "file": "src/suggest/rules_engine.py", "kind": "class", "status": "exists", "phase": "1" },
+    "RulesEngine.apply": { "file": "src/suggest/rules_engine.py", "kind": "method", "status": "exists", "phase": "1", "alias": "apply_rules" },
+    "detect_conflicts": { "file": "src/suggest/rules_engine.py", "kind": "method", "status": "exists", "phase": "1" },
     "rollup_hourly": { "file": "src/suggest/rollup.py", "kind": "function", "status": "planned", "phase": "2" },
     "rollup_daily": { "file": "src/suggest/rollup.py", "kind": "function", "status": "planned", "phase": "4" },
-    "MarkdownReporter": { "file": "src/output/reporter.py", "kind": "class", "status": "planned", "phase": "1" },
-    "write_hourly_report": { "file": "src/output/reporter.py", "kind": "function", "status": "planned", "phase": "1" },
+    "MarkdownReporter": { "file": "src/output/reporter.py", "kind": "class", "status": "exists", "phase": "1" },
+    "write_hourly_report": { "file": "src/output/reporter.py", "kind": "function", "status": "exists", "phase": "1" },
     "Notifier": { "file": "src/output/notifier.py", "kind": "class", "status": "planned", "phase": "5" },
     "IbkrConnector": { "file": "src/ibkr/connector.py", "kind": "class", "status": "planned", "phase": "3" },
     "connect_paper": { "file": "src/ibkr/connector.py", "kind": "function", "status": "planned", "phase": "3" },
@@ -116,9 +130,9 @@
     "sync_executions": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
     "create_app": { "file": "src/web/app.py", "kind": "function", "status": "planned", "phase": "2" },
     "app": { "file": "src/web/app.py", "kind": "variable", "status": "planned", "phase": "2" },
-    "IngestPipeline": { "file": "src/pipeline.py", "kind": "class", "status": "planned", "phase": "1" },
-    "run_ingest_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "planned", "phase": "1" },
-    "run_analysis_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "planned", "phase": "1" }
+    "IngestPipeline": { "file": "src/pipeline.py", "kind": "class", "status": "exists", "phase": "1" },
+    "run_ingest_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "exists", "phase": "1" },
+    "run_analysis_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "exists", "phase": "1" }
   },
   "api_routes": {
     "status": "planned",
@@ -157,10 +171,23 @@
     },
     "suggestions": {
       "phase": "0",
+      "status": "exists",
       "orm_class": "Suggestion",
-      "columns": ["id", "analysis_id", "ticker", "action", "confidence", "rationale", "visible", "created_at"],
+      "columns": ["id", "analysis_id", "market", "action", "confidence", "rationale", "event_type", "visible", "created_at"],
       "fk": ["analysis_id → analyses.id"],
       "action_enum": ["would_buy", "would_sell", "would_reduce", "would_hold", "no_action"]
+    },
+    "bitvavo_markets_cache": {
+      "phase": "0",
+      "status": "exists",
+      "columns": ["market", "base", "quote", "status", "updated_at"],
+      "fork": "bitvavo_crypto"
+    },
+    "trader_config": {
+      "phase": "0",
+      "status": "exists",
+      "columns": ["id", "allocation_eur", "reserve_eur", "isolation_mode", "subaccount_id", "attribution_start"],
+      "fork": "bitvavo_crypto"
     },
     "activity_log": {
       "phase": "0",
@@ -198,9 +225,32 @@
     }
   },
   "pydantic_schemas": {
+    "CryptoAnalysisResult": {
+      "file": "src/storage/models.py",
+      "phase": "1",
+      "status": "exists",
+      "fork": "bitvavo_crypto",
+      "fields": {
+        "headline_id": "str",
+        "base_assets": "list[str]",
+        "markets": "list[str]",
+        "event_type": "hack|regulation|etf_flow|listing|protocol_upgrade|macro|adoption|exchange|stablecoin|whale_move|legal|other",
+        "sentiment": "bullish|bearish|neutral|mixed",
+        "time_horizon": "minutes|hours|days|weeks",
+        "suggested_action": "would_buy|would_sell|would_reduce|would_hold|no_action",
+        "confidence": "float 0-1",
+        "source_quality": "confirmed|reported|opinion|rumor",
+        "rationale": "str",
+        "risk_factors": "list[str]",
+        "would_do": "WouldDo | null",
+        "disclaimer": "str"
+      }
+    },
     "AnalysisResult": {
       "file": "src/storage/models.py",
       "phase": "1",
+      "status": "planned",
+      "fork": "ibkr_stocks",
       "fields": {
         "headline_id": "str",
         "tickers": "list[str]",
@@ -218,9 +268,10 @@
     "WouldDo": {
       "file": "src/storage/models.py",
       "phase": "1",
+      "status": "exists",
       "fields": {
-        "instrument": "str",
-        "direction": "long|short",
+        "market": "str",
+        "side": "buy|sell",
         "notional_hint": "small|medium|large",
         "entry_logic": "str",
         "exit_logic": "str"
@@ -300,8 +351,8 @@
         ".instructions": { "purpose": "agent workflow rules; repo map usage", "read_when": "every_session" },
         "AGENTS.md": { "purpose": "Cursor auto-load entry; points to .instructions", "read_when": "auto" },
         ".gitignore": { "purpose": "ignore data/, venv, .env, reports, *.db", "read_when": "adding_paths" },
-        "requirements.txt": { "status": "planned", "phase": "0", "purpose": "python dependencies" },
-        ".env.example": { "status": "planned", "phase": "0", "purpose": "env var template (FINNHUB_API_KEY, etc.)" }
+        "requirements.txt": { "status": "exists", "phase": "0", "purpose": "python dependencies" },
+        ".env.example": { "status": "exists", "phase": "0", "purpose": "env var template (CRYPTOCOMPARE_API_KEY, OLLAMA_*)" }
       }
     },
     "docs": {
@@ -347,19 +398,19 @@
       }
     },
     "config": {
-      "status": "partial",
+      "status": "exists",
       "phase": "0",
       "files": {
         "mini-pc.env.example": { "status": "exists", "purpose": "SSH host + repo path template for sync-mini-pc.sh" },
         "mini-pc.env": { "status": "local_only", "gitignored": true, "purpose": "actual mini-PC SSH config" },
-        "watchlist.yaml": { "status": "planned", "schema": { "tickers": [{ "symbol": "str", "notes": "str?", "sector": "str?" }] } },
-        "sources.yaml": { "status": "planned", "schema": { "rss": ["url"], "finnhub": { "enabled": "bool", "symbols_from_watchlist": "bool" } } },
-        "settings.yaml": { "status": "planned", "schema_ref": "docs/PLAN.md#12-config-defaults-suggested" }
+        "watchlist.yaml": { "status": "exists", "schema": { "markets": [{ "symbol": "str", "base": "str", "notes": "str?" }] } },
+        "sources.yaml": { "status": "exists", "schema": { "rss": [{ "name": "str", "url": "str" }], "cryptocompare": { "enabled": "bool", "categories": ["str"] } } },
+        "settings.yaml": { "status": "exists", "schema_ref": "docs/PLAN-bitvavo.md#12-config-defaults" }
       }
     },
     "src": {
-      "status": "planned",
-      "phase": "0",
+      "status": "partial",
+      "phase": "1",
       "entry": "src/main.py",
       "files": {
         "main.py": {
@@ -545,31 +596,33 @@
       }
     },
     "static": { "status": "planned", "phase": "2", "files": { "style.css": { "source": "extract from mockup/dashboard.html inline styles" } } },
-    "reports": { "status": "planned", "phase": "1", "pattern": "YYYY-MM-DD_HH.md" },
-    "data": { "status": "planned", "phase": "0", "files": { "advisor.db": { "gitignored": true } } },
+    "reports": { "status": "exists", "phase": "1", "pattern": "YYYY-MM-DD_HH.md" },
+    "data": { "status": "exists", "phase": "0", "files": { "advisor.db": { "gitignored": true } } },
     "tests": {
-      "status": "planned",
+      "status": "partial",
       "phase": "1",
       "files": {
-        "test_deduper.py": { "tests": ["Deduper", "normalize_url", "content_hash"] },
-        "test_rules_engine.py": { "tests": ["RulesEngine", "apply_rules", "detect_conflicts"] },
-        "test_parser.py": { "tests": ["parse_analysis_response", "validate_analysis_json"] },
-        "test_ticker_mapper.py": { "tests": ["TickerMapper", "map_tickers"] }
+        "test_deduper.py": { "status": "exists", "tests": ["filter_new", "normalize_url", "content_hash"] },
+        "test_rules_engine.py": { "status": "exists", "tests": ["RulesEngine", "apply_rules", "detect_conflicts"] },
+        "test_parser.py": { "status": "exists", "tests": ["parse_analysis_response", "validate_analysis_json"] },
+        "test_market_mapper.py": { "status": "planned", "tests": ["MarketMapper", "map_markets"] },
+        "test_ticker_mapper.py": { "status": "planned", "fork": "ibkr_stocks", "tests": ["TickerMapper", "map_tickers"] }
       }
     }
   },
   "data_flow": [
-    { "step": 1, "from": "RSS/Finnhub", "via": "RssFetcher.fetch_rss_feeds / FinnhubFetcher.fetch_finnhub_news", "to": "Deduper.filter_new", "store": "articles" },
-    { "step": 2, "from": "articles", "via": "TickerMapper.map_tickers", "to": "OllamaClient.analyze_headline", "store": "analyses" },
-    { "step": 3, "from": "analyses", "via": "RulesEngine.apply_rules", "to": "suggestions", "side_effect": "ActivityLogEntry" },
+    { "step": 0, "from": "Bitvavo REST", "via": "refresh_markets_cache", "to": "bitvavo_markets_cache", "fork": "bitvavo_crypto" },
+    { "step": 1, "from": "RSS/CryptoCompare", "via": "RssFetcher.fetch_all / CryptoCompareFetcher.fetch_all", "to": "filter_new", "store": "articles" },
+    { "step": 2, "from": "articles", "via": "MarketMapper.map_markets → OllamaClient.analyze_headline", "to": "analyses + suggestions", "store": "analyses" },
+    { "step": 3, "from": "analyses", "via": "RulesEngine.apply_rules", "to": "suggestions", "side_effect": "activity_log" },
     { "step": 4, "from": "suggestions", "via": "MarkdownReporter.write_hourly_report", "to": "reports/" },
-    { "step": 5, "from": "SchedulerService", "triggers": ["schedule_hourly_digest", "schedule_news_poll"] },
-    { "step": 6, "from": "IbkrSyncService.sync_all", "to": ["ibkr_snapshots", "ibkr_positions"], "phase": "3" },
+    { "step": 5, "from": "SchedulerService", "triggers": ["schedule_hourly_digest"], "phase": "1" },
+    { "step": 6, "from": "BitvavoSyncService", "to": ["bitvavo_snapshots", "bitvavo_balances"], "phase": "3", "fork": "bitvavo_crypto" },
     { "step": 7, "from": "SQLite", "via": "FastAPI routes", "to": "templates/", "phase": "2" }
   ],
   "phases": {
-    "0": { "name": "setup", "status": "not_started", "symbols": ["Database", "init_db", "run_migrations", "Settings", "load_settings", "main"], "deliverable": "python -m src.main --help; DB init" },
-    "1": { "name": "news_suggestions", "status": "not_started", "symbols": ["IngestPipeline", "RssFetcher", "OllamaClient", "RulesEngine", "MarkdownReporter"], "deliverable": "daemon ingests news; structured suggestions" },
+    "0": { "name": "setup", "status": "done", "branch": "cursor/phase-0-1-bitvavo-e0ae", "symbols": ["init_db", "run_migrations", "Settings", "load_settings", "main", "refresh_markets_cache"], "deliverable": "python -m src.main --help; init-db; cache-markets" },
+    "1": { "name": "news_suggestions", "status": "done", "branch": "cursor/phase-0-1-bitvavo-e0ae", "symbols": ["IngestPipeline", "RssFetcher", "CryptoCompareFetcher", "OllamaClient", "RulesEngine", "MarkdownReporter"], "deliverable": "run-once / run-daemon ingests news; structured suggestions + hourly markdown" },
     "2": { "name": "dashboard", "status": "not_started", "symbols": ["create_app", "api_routes", "templates/dashboard.html"], "deliverable": "FastAPI dashboard matching mockup" },
     "3": { "name": "ibkr_readonly", "status": "not_started", "symbols": ["IbkrConnector", "IbkrSyncService", "IbkrPosition", "IbkrSnapshot"], "deliverable": "live paper P&L; no orders" },
     "4": { "name": "link_suggestions_positions", "status": "not_started", "symbols": ["SuggestionTrade", "rollup_daily"] },
@@ -590,10 +643,12 @@
     "mockup_url": "http://localhost:8765/dashboard.html",
     "mockup_ibkr_url": "http://localhost:8765/dashboard-ibkr.html",
     "mockup_bitvavo_url": "http://localhost:8765/dashboard.html",
-    "planned_cli": {
-      "help": "python -m src.main --help",
-      "run_once": "python -m src.main run-once",
-      "run_daemon": "python -m src.main run-daemon",
+    "cli": {
+      "help": "PYTHONPATH=. python -m src.main --help",
+      "init_db": "PYTHONPATH=. python -m src.main init-db",
+      "cache_markets": "PYTHONPATH=. python -m src.main cache-markets",
+      "run_once": "PYTHONPATH=. python -m src.main run-once",
+      "run_daemon": "PYTHONPATH=. python -m src.main run-daemon",
       "web_server": "uvicorn src.web.app:app --host 0.0.0.0 --port 8080"
     }
   },
@@ -607,8 +662,8 @@
   ],
   "topic_index": {
     "architecture": ["docs/PLAN.md#3-architecture", "data_flow"],
-    "news_ingestion": ["src/ingest/", "RssFetcher", "FinnhubFetcher", "Deduper"],
-    "ollama_json_schema": ["pydantic_schemas.AnalysisResult", "src/analyze/parser.py"],
+    "news_ingestion": ["src/ingest/", "RssFetcher", "CryptoCompareFetcher", "filter_new"],
+    "ollama_json_schema": ["pydantic_schemas.CryptoAnalysisResult", "src/analyze/parser.py"],
     "rules_engine": ["RulesEngine", "src/suggest/rules_engine.py"],
     "ibkr_paper": ["IbkrConnector", "IbkrSyncService", "db_models.ibkr_*"],
     "dashboard_ui": ["mockup_ui", "api_routes", "templates/dashboard.html"],

@@ -1,0 +1,43 @@
+schedule:
+  hourly_digest_minute: 0
+  news_poll_interval_minutes: 3
+  daily_summary_hour: 18
+
+ollama:
+  base_url: http://127.0.0.1:11434
+  model: qwen2.5:7b
+  fallback_model: martain7r/finance-llama-8b:q4_k_m
+  temperature: 0.2
+  timeout_seconds: 120
+  prompts_module: crypto
+
+suggestions:
+  min_confidence_for_digest: 0.5
+  min_confidence_for_highlight: 0.75
+  max_articles_per_run: 30
+  rumor_confidence_cap: 0.5
+
+bitvavo:
+  rest_url: https://api.bitvavo.com/v2
+  ws_url: wss://ws.bitvavo.com/v2/
+  readonly: true
+  sync_interval_seconds: 45
+  quote_currency: EUR
+
+trader:
+  allocation_eur: 500
+  reserve_eur: 50
+  isolation: tagged_orders
+  client_order_id_prefix: advisor
+  subaccount_id: null
+  attribution_start: null
+
+virtual_portfolio:
+  enabled: true
+
+server:
+  host: 0.0.0.0
+  port: 8080
+
+database:
+  path: data/advisor.db

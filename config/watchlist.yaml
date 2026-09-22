@@ -1,0 +1,16 @@
+markets:
+  - market: BTC-EUR
+    base: BTC
+    notes: Primary watch — ETF flows, macro
+  - market: ETH-EUR
+    base: ETH
+    notes: L2 / regulation sensitivity
+  - market: SOL-EUR
+    base: SOL
+    notes: Ecosystem / outage news
+  - market: XRP-EUR
+    base: XRP
+    notes: Legal / listing headlines
+  - market: ADA-EUR
+    base: ADA
+    notes: Low priority — fill watchlist
