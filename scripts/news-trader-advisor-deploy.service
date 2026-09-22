@@ -1,0 +1,10 @@
+[Unit]
+Description=Deploy news-trader-advisor when origin/main changed
+Documentation=https://github.com/Merxius2/news-trader-advisor/blob/main/docs/mini-pc.md
+
+[Service]
+Type=oneshot
+User=sylvester
+Group=sylvester
+WorkingDirectory=/home/sylvester/news-trader-advisor
+ExecStart=/home/sylvester/news-trader-advisor/scripts/check-and-deploy.sh

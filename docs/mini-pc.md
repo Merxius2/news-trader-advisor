@@ -89,6 +89,32 @@ sudo systemctl stop news-trader-advisor
 
 `scripts/pull-on-mini-pc.sh` restarts the dashboard after every pull — no separate restart step needed.
 
+## Auto-deploy trigger (recommended)
+
+The mini-PC is on your LAN, so GitHub cannot push webhooks to it directly. Instead, a **systemd timer** polls `origin/main` every **3 minutes** and runs pull + restart when new commits appear.
+
+### Install (one-time on mini-PC)
+
+```bash
+cd ~/news-trader-advisor
+bash scripts/install-deploy-trigger.sh
+```
+
+### How it works
+
+1. `news-trader-advisor-deploy.timer` fires every 3 min
+2. `scripts/check-and-deploy.sh` runs `git fetch` and compares `HEAD` to `origin/main`
+3. If changed → `scripts/pull-on-mini-pc.sh` (pull + restart dashboard)
+
+### Monitor
+
+```bash
+systemctl status news-trader-advisor-deploy.timer
+journalctl -u news-trader-advisor-deploy.service -n 20
+```
+
+After pushing to `main`, the mini-PC picks up changes within ~3 minutes — no manual sync needed.
+
 ## Config reference
 
 | Variable | Example | Description |

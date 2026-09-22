@@ -16,7 +16,11 @@
     "dashboard_port": 8080,
     "systemd_service": "news-trader-advisor.service",
     "serve_script": "scripts/serve-dashboard.sh",
-    "install_service_script": "scripts/install-dashboard-service.sh"
+    "install_service_script": "scripts/install-dashboard-service.sh",
+    "deploy_timer": "news-trader-advisor-deploy.timer",
+    "deploy_check_script": "scripts/check-and-deploy.sh",
+    "install_deploy_trigger": "scripts/install-deploy-trigger.sh",
+    "auto_deploy_interval": "3min"
   },
   "repo": {
     "name": "news-trader-advisor",
@@ -267,7 +271,11 @@
         "clone-on-mini-pc.sh": { "purpose": "first-time git clone on mini-PC", "run_from": "mini-pc" },
         "serve-dashboard.sh": { "purpose": "serve mockup (now) or FastAPI (phase 2+) on 0.0.0.0:8080", "run_from": "mini-pc" },
         "install-dashboard-service.sh": { "purpose": "install systemd news-trader-advisor.service + UFW 8080", "run_from": "mini-pc" },
-        "news-trader-advisor.service": { "purpose": "systemd unit template for dashboard" }
+        "news-trader-advisor.service": { "purpose": "systemd unit template for dashboard" },
+        "check-and-deploy.sh": { "purpose": "poll origin/main; run pull-on-mini-pc if changed", "run_from": "mini-pc" },
+        "install-deploy-trigger.sh": { "purpose": "install deploy timer (every 3 min)", "run_from": "mini-pc" },
+        "news-trader-advisor-deploy.timer": { "purpose": "systemd timer for auto-deploy" },
+        "news-trader-advisor-deploy.service": { "purpose": "systemd oneshot runs check-and-deploy.sh" }
       }
     },
     "mockup": {
@@ -520,6 +528,8 @@
     "dashboard_install": "bash scripts/install-dashboard-service.sh",
     "dashboard_url": "http://192.168.1.30:8080/dashboard.html",
     "dashboard_restart": "sudo systemctl restart news-trader-advisor",
+    "deploy_trigger_install": "bash scripts/install-deploy-trigger.sh",
+    "deploy_trigger_logs": "journalctl -u news-trader-advisor-deploy.service -n 20",
     "mockup_preview": "cd mockup && python3 -m http.server 8765",
     "mockup_url": "http://localhost:8765/dashboard.html",
     "planned_cli": {
