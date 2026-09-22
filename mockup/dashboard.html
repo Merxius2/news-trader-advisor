@@ -612,25 +612,6 @@
       color: var(--amber);
     }
 
-    .activity-item {
-      display: flex;
-      gap: 0.65rem;
-      padding: 0.6rem 1rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.78rem;
-    }
-    .activity-item:last-child { border-bottom: none; }
-
-    .activity-time {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.68rem;
-      color: var(--muted);
-      min-width: 42px;
-    }
-
-    .activity-msg { color: #b8c0d0; }
-    .activity-msg em { color: var(--text); font-style: normal; font-weight: 500; }
-
     .watch-item {
       display: flex;
       justify-content: space-between;
@@ -816,9 +797,49 @@
       margin-bottom: 1.25rem;
     }
 
+    .action-log-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.65rem 1.15rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .action-log-count {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .action-log-item.hidden {
+      display: none;
+    }
+
+    .action-log-item.last-visible::before {
+      display: none;
+    }
+
+    .action-log-empty {
+      padding: 2rem 1.15rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .action-log-empty.hidden {
+      display: none;
+    }
+
     .action-log {
       max-height: 320px;
       overflow-y: auto;
+    }
+
+    .action-log.hidden {
+      display: none;
     }
 
     .action-log-item {
@@ -1067,11 +1088,24 @@
 
       <div class="panel action-log-panel">
         <div class="panel-header">
-          Bot activity log
+          Activity log
           <span class="badge trader">Trades &amp; actions</span>
         </div>
+        <div class="action-log-toolbar">
+          <div class="seg-control" id="actionLogFilter" role="group" aria-label="Filter activity log">
+            <button type="button" class="seg-btn active" data-filter="all">All</button>
+            <button type="button" class="seg-btn" data-filter="trade">Trade</button>
+            <button type="button" class="seg-btn" data-filter="news">News</button>
+            <button type="button" class="seg-btn" data-filter="analysis">Analysis</button>
+            <button type="button" class="seg-btn" data-filter="sync">Sync</button>
+            <button type="button" class="seg-btn" data-filter="system">System</button>
+            <button type="button" class="seg-btn" data-filter="idle">Idle</button>
+          </div>
+          <span class="action-log-count" id="actionLogCount">8 events</span>
+        </div>
+        <div class="action-log-empty hidden" id="actionLogEmpty">No events match this filter.</div>
         <div class="action-log" id="actionLog">
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="sync">
             <span class="action-log-time">14:02</span>
             <span class="action-log-type sync"><span class="action-log-dot"></span>Sync</span>
             <span class="action-log-body">
@@ -1079,7 +1113,7 @@
               <span class="detail">3 tagged positions · 0 drift</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="trade">
             <span class="action-log-time">14:01</span>
             <span class="action-log-type trade"><span class="action-log-dot"></span>Trade</span>
             <span class="action-log-body">
@@ -1087,7 +1121,7 @@
               <span class="detail">advisor-sugg-55 · suggestion ETF inflow headline</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="analysis">
             <span class="action-log-time">13:59</span>
             <span class="action-log-type analysis"><span class="action-log-dot"></span>Analysis</span>
             <span class="action-log-body">
@@ -1095,7 +1129,7 @@
               <span class="detail">Ollama 2.1s · CryptoAnalysisResult validated</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="news">
             <span class="action-log-time">13:57</span>
             <span class="action-log-type news"><span class="action-log-dot"></span>News</span>
             <span class="action-log-body">
@@ -1103,7 +1137,7 @@
               <span class="detail">dedupe OK · queued for analysis</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="news">
             <span class="action-log-time">13:54</span>
             <span class="action-log-type news"><span class="action-log-dot"></span>News</span>
             <span class="action-log-body">
@@ -1111,7 +1145,7 @@
               <span class="detail">12 articles checked · 1 new</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="trade">
             <span class="action-log-time">13:51</span>
             <span class="action-log-type trade sell"><span class="action-log-dot"></span>Trade</span>
             <span class="action-log-body">
@@ -1119,7 +1153,7 @@
               <span class="detail">advisor-51 · realized +€2,10</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="system">
             <span class="action-log-time">13:00</span>
             <span class="action-log-type system"><span class="action-log-dot"></span>System</span>
             <span class="action-log-body">
@@ -1127,7 +1161,7 @@
               <span class="detail">saved to digests · trader sub-ledger unchanged</span>
             </span>
           </div>
-          <div class="action-log-item">
+          <div class="action-log-item" data-log-type="idle">
             <span class="action-log-time">12:58</span>
             <span class="action-log-type idle"><span class="action-log-dot"></span>Idle</span>
             <span class="action-log-body">
@@ -1270,34 +1304,6 @@
         </div>
 
         <div class="right-col">
-          <div class="panel" style="margin-bottom: 1.25rem;">
-            <div class="panel-header">Live activity</div>
-            <div class="activity-item">
-              <span class="activity-time">14:02</span>
-              <span class="activity-msg">Synced Bitvavo — trader <em>€420 / €500</em>, reconcile OK</span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-time">13:59</span>
-              <span class="activity-msg">Analyzed <em>ETF inflow</em> → would_buy BTC-EUR (0.81)</span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-time">13:57</span>
-              <span class="activity-msg">New headline from <em>CoinDesk RSS</em></span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-time">13:54</span>
-              <span class="activity-msg">Polling crypto feeds for <em>BTC, ETH, SOL…</em></span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-time">13:51</span>
-              <span class="activity-msg">Ollama response OK (2.1s) — CryptoAnalysisResult validated</span>
-            </div>
-            <div class="activity-item">
-              <span class="activity-time">13:00</span>
-              <span class="activity-msg">Hourly digest — <em>9 articles</em>, 3 suggestions</span>
-            </div>
-          </div>
-
           <div class="panel">
             <div class="panel-header">
               Watchlist
@@ -1359,14 +1365,41 @@
       var toggleBtn = document.getElementById("botToggle");
       var toggleLabel = document.getElementById("botToggleLabel");
       var actionLog = document.getElementById("actionLog");
+      var actionLogFilter = document.getElementById("actionLogFilter");
+      var actionLogCount = document.getElementById("actionLogCount");
+      var actionLogEmpty = document.getElementById("actionLogEmpty");
+      var logFilter = "all";
 
       function padTime(d) {
         return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
       }
 
+      function applyLogFilter() {
+        var items = actionLog.querySelectorAll(".action-log-item");
+        var visible = 0;
+        var lastVisible = null;
+
+        items.forEach(function (item) {
+          item.classList.remove("last-visible");
+          var type = item.getAttribute("data-log-type");
+          var show = logFilter === "all" || type === logFilter;
+          item.classList.toggle("hidden", !show);
+          if (show) {
+            visible++;
+            lastVisible = item;
+          }
+        });
+
+        if (lastVisible) lastVisible.classList.add("last-visible");
+        actionLogEmpty.classList.toggle("hidden", visible > 0);
+        actionLog.classList.toggle("hidden", visible === 0);
+        actionLogCount.textContent = visible + (visible === 1 ? " event" : " events");
+      }
+
       function prependLog(type, typeLabel, title, detail, extraClass) {
         var item = document.createElement("div");
         item.className = "action-log-item";
+        item.setAttribute("data-log-type", type);
         item.innerHTML =
           '<span class="action-log-time">' + padTime(new Date()) + '</span>' +
           '<span class="action-log-type ' + type + (extraClass ? " " + extraClass : "") + '">' +
@@ -1374,6 +1407,7 @@
           '<span class="action-log-body"><strong>' + title + '</strong>' +
           (detail ? '<span class="detail">' + detail + "</span>" : "") + "</span>";
         actionLog.insertBefore(item, actionLog.firstChild);
+        applyLogFilter();
       }
 
       function setBotState(state) {
@@ -1419,7 +1453,18 @@
         setBotState(pill.getAttribute("data-state"));
       });
 
+      actionLogFilter.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-filter]");
+        if (!btn) return;
+        logFilter = btn.getAttribute("data-filter");
+        actionLogFilter.querySelectorAll(".seg-btn").forEach(function (b) {
+          b.classList.toggle("active", b === btn);
+        });
+        applyLogFilter();
+      });
+
       setBotState("news");
+      applyLogFilter();
     })();
   </script>
   <script>
