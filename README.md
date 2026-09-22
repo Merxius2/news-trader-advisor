@@ -6,6 +6,11 @@ Local news-driven trading **advisor** for your mini-PC: Ollama analyzes headline
 
 **Planning / mockup only** — no backend yet.
 
+## Agent workflow
+
+Agents should load [`.instructions`](.instructions) and [`docs/repo-map.json`](docs/repo-map.json) at session start. Cursor auto-loads [`AGENTS.md`](AGENTS.md), which points to both.
+
+- [`docs/PLAN.md`](docs/PLAN.md) — full project handoff: architecture, phases, schema, guardrails
 - [`mockup/dashboard.html`](mockup/dashboard.html) — static dashboard preview (sample data)
 - [`mockup/README.md`](mockup/README.md) — how to open the mockup locally
 

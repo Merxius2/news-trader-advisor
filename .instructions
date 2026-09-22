@@ -1,0 +1,136 @@
+# Agent instructions — News Trader Advisor
+
+These instructions apply to every agent session on this repository (IDE, CLI, Cloud Agent).
+
+## Bootstrap (do this first)
+
+1. **Load the repo map** — read `docs/repo-map.json` before broad exploration (`grep`, `glob`, recursive directory walks).
+2. **Consult symbol lookup first** — use sections in this order:
+   - `symbol_index` — flat lookup: symbol name → file, kind (class/function/constant)
+   - `api_routes` — HTTP handlers, paths, templates
+   - `db_models` — tables, columns, ORM class names
+   - `pydantic_schemas` — LLM JSON validation shapes
+   - `mockup_ui` — existing dashboard HTML sections and CSS tokens
+   - `tree` — per-file nested `symbols` with methods, signatures, dependencies
+   - `data_flow` — pipeline steps with function names
+   - `topic_index` — topic → relevant symbols and paths
+3. **Load the plan when implementing** — read only the relevant section of `docs/PLAN.md` referenced by `topic_index`.
+4. **UI work** — use `mockup_ui` and `mockup/dashboard.html`; map sections to `templates/` via `mockup_ui.maps_to_templates`.
+
+## Using the repo map to understand code
+
+### Find a symbol without opening files
+
+```
+Need RulesEngine?     → symbol_index.RulesEngine → src/suggest/rules_engine.py
+Need API endpoints?   → api_routes.routes
+Need DB columns?      → db_models.suggestions.columns
+Need LLM output shape?→ pydantic_schemas.AnalysisResult
+Need UI component?    → mockup_ui.sections (selector + purpose)
+Need call chain?      → data_flow (step → via → to)
+Need phase scope?     → phases.N.symbols
+```
+
+### Before reading a source file
+
+1. Check `tree` → package → file → `symbols` for classes, methods, and signatures already documented.
+2. Check `symbol_index` for cross-references and `depends_on` / `calls` where listed.
+3. Read the file only if: implementing, debugging, or map entry is missing/stale.
+
+### When implementing new code
+
+1. Find the planned location in `tree` and `docs/PLAN.md` section 11 — do not invent new paths.
+2. Match symbol names already in `symbol_index` (e.g. `RulesEngine`, not `RuleEngine`).
+3. Wire into `data_flow` if the symbol sits on the main pipeline.
+4. Add tests under `tests/` matching planned test files in `tree.tests.files`.
+
+## Token-saving rules
+
+- **Prefer the repo map over scanning the repo.** Never grep the whole repo to find "where is X defined" if `symbol_index` has it.
+- **Do not read `docs/PLAN.md` in full** unless planning a new phase — use `topic_index` + `phases`.
+- **Do not list directories recursively** if `tree` already describes them.
+- **Do not read all files in a package** — read only the file containing the symbol you need (from `symbol_index`).
+- **For dashboard work**, use `mockup_ui.sections` before parsing all of `dashboard.html` (664 lines).
+- **For API work**, use `api_routes` before opening `routes.py`.
+
+## Implementation rules
+
+- Follow phase order in `docs/PLAN.md` section 18: Phase 0+1 → 2 → 3 → 4 → 5+.
+- Match existing conventions in surrounding code; keep diffs minimal.
+- Paper trading only until Phase 6; never enable live trading in v1.
+- Every suggestion must include visible reasoning (guardrails in `docs/PLAN.md` and `repo-map.json`).
+- Validate all LLM output through `AnalysisResult` pydantic schema (`pydantic_schemas`).
+- Branch names for cloud agents: `cursor/<descriptive-name>-e0ae`.
+
+## Repo map maintenance (required)
+
+Update `docs/repo-map.json` in the **same commit** as any code change that affects symbols or structure.
+
+### Must update when
+
+- Add, remove, or rename a **class, function, method, constant, or route handler**
+- Change a **function signature**, return type, or primary responsibility
+- Add/remove **API route** (method, path, handler name)
+- Add/remove **DB table or column**
+- Add/remove **pydantic model or field**
+- Add **depends_on** or **calls** relationship that agents need for navigation
+- Change **phase status** or mark a planned symbol as `exists`
+- Add/rename **mockup UI section** or template file
+- Move or rename files/packages
+
+### How to update (checklist)
+
+1. Set `last_updated` to today (`YYYY-MM-DD`).
+2. **`symbol_index`** — add/update/remove entry: `{ file, kind, status, phase }`.
+3. **`tree`** — update nested `symbols` on the file; include `methods`, `sig`, `calls`, `depends_on` where useful.
+4. **`api_routes.routes`** — add route with method, path, handler, template.
+5. **`db_models`** — add table with columns and `orm_class`.
+6. **`pydantic_schemas`** — add/update fields for validation models.
+7. **`data_flow`** — update steps if pipeline wiring changed.
+8. **`phases`** — update `status` and `symbols` list for the active phase.
+9. **`topic_index`** — add new subsystem keywords if needed.
+10. Change symbol `status` from `planned` → `exists` when implemented.
+11. Validate JSON: `python3 -m json.tool docs/repo-map.json`.
+
+### Symbol entry format (conventions)
+
+```json
+"ClassName": {
+  "kind": "class",
+  "status": "planned | exists",
+  "phase": "0",
+  "methods": ["method_a", "method_b"],
+  "depends_on": ["OtherClass"],
+  "file": "src/package/module.py"
+}
+
+"function_name": {
+  "kind": "function",
+  "sig": "(arg: Type) -> ReturnType",
+  "calls": ["other_function"],
+  "returns": "Description or type"
+}
+```
+
+Keep signatures concise. Document **public** API and important internals; skip trivial private helpers unless agents need them for navigation.
+
+### Stale map is worse than a large map
+
+If unsure whether to update: **update it**. Agents rely on this file every session. A few extra JSON lines cost less than reading entire modules to rediscover structure.
+
+## Key files (quick reference)
+
+| File | Role |
+|------|------|
+| `docs/repo-map.json` | Symbol index, API routes, DB models, UI map — load every session |
+| `docs/PLAN.md` | Full architecture and phase plan (read sections on demand) |
+| `.instructions` | This file — workflow rules |
+| `mockup/dashboard.html` | Dashboard UI target (`mockup_ui` summarizes structure) |
+| `README.md` | Human-facing overview |
+
+## Cloud Agent notes
+
+- Push with `git push -u origin <branch>`.
+- Create/update PRs via the ManagePullRequest tool.
+- Commit and push before testing; update PR after changes.
+- Always include repo map updates in the same commit as code changes.

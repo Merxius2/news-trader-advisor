@@ -1,0 +1,525 @@
+{
+  "schema_version": "1.1",
+  "last_updated": "2026-09-22",
+  "repo": {
+    "name": "news-trader-advisor",
+    "description": "Local news-driven trading advisor: Ollama analyzes headlines, IBKR paper tracks P&L, web dashboard. Paper only in v1.",
+    "current_phase": "planning",
+    "next_build_phase": "0",
+    "stack": ["python3.11+", "fastapi", "sqlite", "apscheduler", "ollama", "ib_async", "htmx", "pydantic", "pyyaml"]
+  },
+  "agent_bootstrap": {
+    "load_order": [".instructions", "docs/repo-map.json", "docs/PLAN.md"],
+    "instructions_file": ".instructions",
+    "plan_file": "docs/PLAN.md",
+    "mockup_file": "mockup/dashboard.html",
+    "lookup_priority": ["symbol_index", "api_routes", "db_models", "tree", "topic_index"]
+  },
+  "symbol_index": {
+    "Article": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
+    "Analysis": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
+    "Suggestion": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
+    "ActivityLogEntry": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
+    "RunRecord": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "0" },
+    "WouldDo": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "1" },
+    "AnalysisResult": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "1" },
+    "IbkrSnapshot": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "3" },
+    "IbkrPosition": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "3" },
+    "IbkrExecution": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "3" },
+    "SuggestionTrade": { "file": "src/storage/models.py", "kind": "class", "status": "planned", "phase": "4" },
+    "Database": { "file": "src/storage/db.py", "kind": "class", "status": "planned", "phase": "0" },
+    "init_db": { "file": "src/storage/db.py", "kind": "function", "status": "planned", "phase": "0" },
+    "get_connection": { "file": "src/storage/db.py", "kind": "function", "status": "planned", "phase": "0" },
+    "run_migrations": { "file": "src/storage/migrations.py", "kind": "function", "status": "planned", "phase": "0" },
+    "load_settings": { "file": "src/config_loader.py", "kind": "function", "status": "planned", "phase": "0" },
+    "Settings": { "file": "src/config_loader.py", "kind": "class", "status": "planned", "phase": "0" },
+    "WatchlistConfig": { "file": "src/config_loader.py", "kind": "class", "status": "planned", "phase": "0" },
+    "main": { "file": "src/main.py", "kind": "function", "status": "planned", "phase": "0" },
+    "cli_run_once": { "file": "src/main.py", "kind": "function", "status": "planned", "phase": "1" },
+    "cli_run_daemon": { "file": "src/main.py", "kind": "function", "status": "planned", "phase": "1" },
+    "SchedulerService": { "file": "src/scheduler.py", "kind": "class", "status": "planned", "phase": "1" },
+    "schedule_hourly_digest": { "file": "src/scheduler.py", "kind": "function", "status": "planned", "phase": "1" },
+    "schedule_news_poll": { "file": "src/scheduler.py", "kind": "function", "status": "planned", "phase": "2" },
+    "RssFetcher": { "file": "src/ingest/rss_fetcher.py", "kind": "class", "status": "planned", "phase": "1" },
+    "fetch_rss_feeds": { "file": "src/ingest/rss_fetcher.py", "kind": "function", "status": "planned", "phase": "1" },
+    "parse_rss_entry": { "file": "src/ingest/rss_fetcher.py", "kind": "function", "status": "planned", "phase": "1" },
+    "FinnhubFetcher": { "file": "src/ingest/finnhub_fetcher.py", "kind": "class", "status": "planned", "phase": "1" },
+    "fetch_finnhub_news": { "file": "src/ingest/finnhub_fetcher.py", "kind": "function", "status": "planned", "phase": "1" },
+    "Deduper": { "file": "src/ingest/deduper.py", "kind": "class", "status": "planned", "phase": "1" },
+    "normalize_url": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
+    "content_hash": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
+    "is_duplicate": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
+    "cluster_near_duplicates": { "file": "src/ingest/deduper.py", "kind": "function", "status": "planned", "phase": "1" },
+    "TickerMapper": { "file": "src/enrich/ticker_mapper.py", "kind": "class", "status": "planned", "phase": "1" },
+    "map_tickers": { "file": "src/enrich/ticker_mapper.py", "kind": "function", "status": "planned", "phase": "1" },
+    "extract_tickers_from_text": { "file": "src/enrich/ticker_mapper.py", "kind": "function", "status": "planned", "phase": "1" },
+    "OllamaClient": { "file": "src/analyze/ollama_client.py", "kind": "class", "status": "planned", "phase": "1" },
+    "analyze_headline": { "file": "src/analyze/ollama_client.py", "kind": "function", "status": "planned", "phase": "1" },
+    "build_analysis_prompt": { "file": "src/analyze/prompts.py", "kind": "function", "status": "planned", "phase": "1" },
+    "SYSTEM_PROMPT": { "file": "src/analyze/prompts.py", "kind": "constant", "status": "planned", "phase": "1" },
+    "parse_analysis_response": { "file": "src/analyze/parser.py", "kind": "function", "status": "planned", "phase": "1" },
+    "validate_analysis_json": { "file": "src/analyze/parser.py", "kind": "function", "status": "planned", "phase": "1" },
+    "RulesEngine": { "file": "src/suggest/rules_engine.py", "kind": "class", "status": "planned", "phase": "1" },
+    "apply_rules": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
+    "filter_by_confidence": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
+    "detect_conflicts": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
+    "validate_watchlist_tickers": { "file": "src/suggest/rules_engine.py", "kind": "function", "status": "planned", "phase": "1" },
+    "rollup_hourly": { "file": "src/suggest/rollup.py", "kind": "function", "status": "planned", "phase": "2" },
+    "rollup_daily": { "file": "src/suggest/rollup.py", "kind": "function", "status": "planned", "phase": "4" },
+    "MarkdownReporter": { "file": "src/output/reporter.py", "kind": "class", "status": "planned", "phase": "1" },
+    "write_hourly_report": { "file": "src/output/reporter.py", "kind": "function", "status": "planned", "phase": "1" },
+    "Notifier": { "file": "src/output/notifier.py", "kind": "class", "status": "planned", "phase": "5" },
+    "IbkrConnector": { "file": "src/ibkr/connector.py", "kind": "class", "status": "planned", "phase": "3" },
+    "connect_paper": { "file": "src/ibkr/connector.py", "kind": "function", "status": "planned", "phase": "3" },
+    "disconnect": { "file": "src/ibkr/connector.py", "kind": "function", "status": "planned", "phase": "3" },
+    "IbkrSyncService": { "file": "src/ibkr/sync.py", "kind": "class", "status": "planned", "phase": "3" },
+    "sync_account_summary": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
+    "sync_positions": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
+    "sync_executions": { "file": "src/ibkr/sync.py", "kind": "function", "status": "planned", "phase": "3" },
+    "create_app": { "file": "src/web/app.py", "kind": "function", "status": "planned", "phase": "2" },
+    "app": { "file": "src/web/app.py", "kind": "variable", "status": "planned", "phase": "2" },
+    "IngestPipeline": { "file": "src/pipeline.py", "kind": "class", "status": "planned", "phase": "1" },
+    "run_ingest_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "planned", "phase": "1" },
+    "run_analysis_cycle": { "file": "src/pipeline.py", "kind": "function", "status": "planned", "phase": "1" }
+  },
+  "api_routes": {
+    "status": "planned",
+    "phase": "2",
+    "base": "/",
+    "routes": [
+      { "method": "GET", "path": "/", "handler": "dashboard_home", "file": "src/web/routes.py", "template": "templates/dashboard.html", "mockup_ref": "mockup/dashboard.html" },
+      { "method": "GET", "path": "/portfolio", "handler": "portfolio_page", "file": "src/web/routes.py", "template": "templates/portfolio.html", "phase": "3" },
+      { "method": "GET", "path": "/suggestions", "handler": "suggestions_page", "file": "src/web/routes.py", "template": "templates/suggestions.html" },
+      { "method": "GET", "path": "/suggestions/{id}", "handler": "suggestion_detail", "file": "src/web/routes.py", "template": "templates/suggestion_detail.html" },
+      { "method": "GET", "path": "/articles/{id}", "handler": "article_detail", "file": "src/web/routes.py", "template": "templates/article_detail.html" },
+      { "method": "GET", "path": "/watchlist", "handler": "watchlist_page", "file": "src/web/routes.py", "template": "templates/watchlist.html" },
+      { "method": "POST", "path": "/watchlist", "handler": "watchlist_update", "file": "src/web/routes.py", "phase": "2" },
+      { "method": "GET", "path": "/activity", "handler": "activity_log_page", "file": "src/web/routes.py", "template": "templates/activity.html" },
+      { "method": "GET", "path": "/activity/feed", "handler": "activity_feed_partial", "file": "src/web/routes.py", "returns": "htmx_partial", "phase": "2" },
+      { "method": "GET", "path": "/digests", "handler": "digests_page", "file": "src/web/routes.py", "template": "templates/digests.html", "phase": "4" },
+      { "method": "GET", "path": "/settings", "handler": "settings_page", "file": "src/web/routes.py", "template": "templates/settings.html", "phase": "2" },
+      { "method": "POST", "path": "/actions/run-news", "handler": "trigger_news_run", "file": "src/web/routes.py", "phase": "2" },
+      { "method": "POST", "path": "/actions/sync-ibkr", "handler": "trigger_ibkr_sync", "file": "src/web/routes.py", "phase": "3" },
+      { "method": "GET", "path": "/api/health", "handler": "health_check", "file": "src/web/routes.py", "returns": "json" },
+      { "method": "GET", "path": "/api/status", "handler": "system_status", "file": "src/web/routes.py", "returns": "json", "fields": ["ibkr_connected", "ollama_model", "last_news_poll", "next_hourly_run"] }
+    ]
+  },
+  "db_models": {
+    "articles": {
+      "phase": "0",
+      "orm_class": "Article",
+      "columns": ["id", "url", "title", "summary", "source", "published_at", "content_hash", "fetched_at"],
+      "indexes": ["url UNIQUE", "content_hash", "published_at"]
+    },
+    "analyses": {
+      "phase": "0",
+      "orm_class": "Analysis",
+      "columns": ["id", "article_id", "model", "raw_response", "parsed_json", "created_at"],
+      "fk": ["article_id → articles.id"]
+    },
+    "suggestions": {
+      "phase": "0",
+      "orm_class": "Suggestion",
+      "columns": ["id", "analysis_id", "ticker", "action", "confidence", "rationale", "visible", "created_at"],
+      "fk": ["analysis_id → analyses.id"],
+      "action_enum": ["would_buy", "would_sell", "would_reduce", "would_hold", "no_action"]
+    },
+    "activity_log": {
+      "phase": "0",
+      "orm_class": "ActivityLogEntry",
+      "columns": ["id", "timestamp", "level", "message"],
+      "levels": ["info", "warn", "error"]
+    },
+    "runs": {
+      "phase": "0",
+      "orm_class": "RunRecord",
+      "columns": ["id", "type", "started_at", "finished_at", "articles_processed"],
+      "type_enum": ["hourly", "trigger", "daily"]
+    },
+    "ibkr_snapshots": {
+      "phase": "3",
+      "orm_class": "IbkrSnapshot",
+      "columns": ["id", "time", "daily_pnl", "total_unrealized", "net_liq"]
+    },
+    "ibkr_positions": {
+      "phase": "3",
+      "orm_class": "IbkrPosition",
+      "columns": ["id", "symbol", "qty", "avg_cost", "mkt_value", "unrealized", "daily_pnl", "synced_at"]
+    },
+    "ibkr_executions": {
+      "phase": "3",
+      "orm_class": "IbkrExecution",
+      "columns": ["id", "symbol", "qty", "price", "side", "time", "realized_pnl"]
+    },
+    "suggestion_trades": {
+      "phase": "4",
+      "orm_class": "SuggestionTrade",
+      "columns": ["id", "suggestion_id", "ibkr_order_id", "ibkr_execution_id", "linked_at"],
+      "fk": ["suggestion_id → suggestions.id"]
+    }
+  },
+  "pydantic_schemas": {
+    "AnalysisResult": {
+      "file": "src/storage/models.py",
+      "phase": "1",
+      "fields": {
+        "headline_id": "str",
+        "tickers": "list[str]",
+        "event_type": "earnings_guidance|m_and_a|regulation|macro|product|other",
+        "sentiment": "bullish|bearish|neutral|mixed",
+        "time_horizon": "intraday|days|weeks",
+        "suggested_action": "would_buy|would_sell|would_reduce|would_hold|no_action",
+        "confidence": "float 0-1",
+        "rationale": "str",
+        "risk_factors": "list[str]",
+        "would_do": "WouldDo",
+        "disclaimer": "str"
+      }
+    },
+    "WouldDo": {
+      "file": "src/storage/models.py",
+      "phase": "1",
+      "fields": {
+        "instrument": "str",
+        "direction": "long|short",
+        "notional_hint": "small|medium|large",
+        "entry_logic": "str",
+        "exit_logic": "str"
+      }
+    }
+  },
+  "mockup_ui": {
+    "file": "mockup/dashboard.html",
+    "status": "exists",
+    "phase": "done",
+    "sections": [
+      { "selector": ".mockup-banner", "purpose": "static disclaimer banner" },
+      { "selector": ".sidebar", "purpose": "nav + logo + paper badge + status panel" },
+      { "selector": ".nav", "purpose": "page links: Dashboard, Portfolio, Suggestions, Watchlist, Activity, Digests, Settings" },
+      { "selector": ".status-panel", "purpose": "IBKR/Ollama/news poll connection status rows" },
+      { "selector": ".pnl-grid", "purpose": "4 summary cards: today P&L, unrealized, realized, net liq" },
+      { "selector": ".pnl-card", "purpose": "single P&L metric card (.label, .value, .sub)" },
+      { "selector": "table", "purpose": "positions table with linked suggestion tags" },
+      { "selector": ".suggestion", "purpose": "suggestion card: headline, confidence, meta, .reasoning block, would_do, .risks" },
+      { "selector": ".activity-item", "purpose": "live activity feed row (.activity-time, .activity-msg)" },
+      { "selector": ".watch-item", "purpose": "watchlist row with signal dot and action tag" }
+    ],
+    "css_tokens": {
+      "file": "mockup/dashboard.html :root",
+      "vars": ["--bg", "--surface", "--surface2", "--border", "--text", "--muted", "--green", "--red", "--amber", "--blue", "--purple"]
+    },
+    "tag_classes": {
+      "tag-buy": "would_buy signal",
+      "tag-sell": "would_sell / would_reduce signal",
+      "tag-hold": "would_hold signal",
+      "positive": "green P&L",
+      "negative": "red P&L"
+    },
+    "maps_to_templates": {
+      "templates/dashboard.html": "primary target for phase 2 — replicate mockup layout",
+      "templates/base.html": "shared sidebar, status panel, paper badge"
+    }
+  },
+  "tree": {
+    ".": {
+      "status": "exists",
+      "purpose": "repo root",
+      "files": {
+        "README.md": { "purpose": "human overview, links to plan and mockup", "read_when": "onboarding" },
+        ".instructions": { "purpose": "agent workflow rules; repo map usage", "read_when": "every_session" },
+        "AGENTS.md": { "purpose": "Cursor auto-load entry; points to .instructions", "read_when": "auto" },
+        ".gitignore": { "purpose": "ignore data/, venv, .env, reports, *.db", "read_when": "adding_paths" },
+        "requirements.txt": { "status": "planned", "phase": "0", "purpose": "python dependencies" },
+        ".env.example": { "status": "planned", "phase": "0", "purpose": "env var template (FINNHUB_API_KEY, etc.)" }
+      }
+    },
+    "docs": {
+      "status": "exists",
+      "files": {
+        "PLAN.md": { "purpose": "full handoff: architecture, phases 0-7, schema, guardrails", "read_when": "implementation_planning" },
+        "repo-map.json": { "purpose": "this file; symbol index + structure for agents", "read_when": "every_session" }
+      }
+    },
+    "mockup": {
+      "status": "exists",
+      "phase": "done",
+      "files": {
+        "dashboard.html": {
+          "purpose": "static dashboard UI reference",
+          "symbols": "see mockup_ui section",
+          "read_when": "ui_work"
+        },
+        "README.md": { "purpose": "serve mockup locally", "read_when": "preview_ui" }
+      }
+    },
+    "config": {
+      "status": "planned",
+      "phase": "0",
+      "files": {
+        "watchlist.yaml": { "schema": { "tickers": [{ "symbol": "str", "notes": "str?", "sector": "str?" }] } },
+        "sources.yaml": { "schema": { "rss": ["url"], "finnhub": { "enabled": "bool", "symbols_from_watchlist": "bool" } } },
+        "settings.yaml": { "schema_ref": "docs/PLAN.md#12-config-defaults-suggested" }
+      }
+    },
+    "src": {
+      "status": "planned",
+      "phase": "0",
+      "entry": "src/main.py",
+      "files": {
+        "main.py": {
+          "phase": "0",
+          "symbols": {
+            "main": { "kind": "function", "sig": "(argv: list[str] | None) -> int", "cli": ["--help", "run-once", "run-daemon"] },
+            "cli_run_once": { "kind": "function", "sig": "() -> int", "calls": ["IngestPipeline.run_ingest_cycle", "run_analysis_cycle"] },
+            "cli_run_daemon": { "kind": "function", "sig": "() -> int", "calls": ["SchedulerService.start"] }
+          }
+        },
+        "config_loader.py": {
+          "phase": "0",
+          "symbols": {
+            "Settings": { "kind": "class", "fields": ["schedule", "ollama", "suggestions", "ibkr", "server"] },
+            "WatchlistConfig": { "kind": "class", "fields": ["tickers"] },
+            "load_settings": { "kind": "function", "sig": "(path: Path | None) -> Settings" }
+          }
+        },
+        "pipeline.py": {
+          "phase": "1",
+          "symbols": {
+            "IngestPipeline": {
+              "kind": "class",
+              "methods": ["run_ingest_cycle", "run_analysis_cycle"],
+              "depends_on": ["RssFetcher", "FinnhubFetcher", "Deduper", "TickerMapper", "OllamaClient", "RulesEngine"]
+            }
+          }
+        },
+        "scheduler.py": {
+          "phase": "1",
+          "symbols": {
+            "SchedulerService": { "kind": "class", "methods": ["start", "stop", "add_hourly_job", "add_poll_job"] },
+            "schedule_hourly_digest": { "kind": "function", "cron": "0 * * * *" },
+            "schedule_news_poll": { "kind": "function", "interval_min": 3 }
+          }
+        }
+      },
+      "packages": {
+        "ingest": {
+          "phase": "1",
+          "files": {
+            "rss_fetcher.py": {
+              "RssFetcher": { "kind": "class", "methods": ["fetch_all", "fetch_source"] },
+              "fetch_rss_feeds": { "kind": "function", "returns": "list[Article]" },
+              "parse_rss_entry": { "kind": "function", "returns": "Article | None" }
+            },
+            "finnhub_fetcher.py": {
+              "FinnhubFetcher": { "kind": "class", "methods": ["fetch_for_symbols"], "env": ["FINNHUB_API_KEY"] },
+              "fetch_finnhub_news": { "kind": "function", "returns": "list[Article]" }
+            },
+            "deduper.py": {
+              "Deduper": { "kind": "class", "methods": ["filter_new", "cluster"] },
+              "normalize_url": { "kind": "function" },
+              "content_hash": { "kind": "function", "inputs": ["title", "published_at", "source"] },
+              "is_duplicate": { "kind": "function" },
+              "cluster_near_duplicates": { "kind": "function", "window_min": "30-60" }
+            }
+          }
+        },
+        "enrich": {
+          "phase": "1",
+          "files": {
+            "ticker_mapper.py": {
+              "TickerMapper": { "kind": "class", "methods": ["map_article"] },
+              "map_tickers": { "kind": "function", "returns": "list[str]" },
+              "extract_tickers_from_text": { "kind": "function" }
+            }
+          }
+        },
+        "analyze": {
+          "phase": "1",
+          "files": {
+            "ollama_client.py": {
+              "OllamaClient": { "kind": "class", "methods": ["analyze", "health_check"], "config": ["base_url", "model", "fallback_model", "temperature", "timeout_seconds"] },
+              "analyze_headline": { "kind": "function", "returns": "AnalysisResult", "retries": 1 }
+            },
+            "prompts.py": {
+              "SYSTEM_PROMPT": { "kind": "constant" },
+              "build_analysis_prompt": { "kind": "function", "inputs": ["article", "watchlist_tickers"] }
+            },
+            "parser.py": {
+              "parse_analysis_response": { "kind": "function", "returns": "AnalysisResult | None" },
+              "validate_analysis_json": { "kind": "function", "uses": "pydantic" }
+            }
+          }
+        },
+        "suggest": {
+          "phase": "1",
+          "files": {
+            "rules_engine.py": {
+              "RulesEngine": { "kind": "class", "methods": ["apply", "filter_confidence", "detect_conflicts"] },
+              "apply_rules": { "kind": "function", "rules": ["confidence_lt_0.6_log_only", "no_action_hide", "watchlist_only_tickers", "conflict_flag_1h"] },
+              "filter_by_confidence": { "kind": "function", "threshold": 0.6 },
+              "detect_conflicts": { "kind": "function", "window": "1 hour" },
+              "validate_watchlist_tickers": { "kind": "function" }
+            },
+            "rollup.py": {
+              "rollup_hourly": { "kind": "function", "phase": "2" },
+              "rollup_daily": { "kind": "function", "phase": "4" }
+            }
+          }
+        },
+        "ibkr": {
+          "phase": "3",
+          "files": {
+            "connector.py": {
+              "IbkrConnector": { "kind": "class", "methods": ["connect", "disconnect", "is_connected"], "uses": "ib_async", "port": 4002 },
+              "connect_paper": { "kind": "function" },
+              "disconnect": { "kind": "function" }
+            },
+            "sync.py": {
+              "IbkrSyncService": { "kind": "class", "methods": ["sync_all", "sync_account", "sync_positions"], "interval_sec": "30-60" },
+              "sync_account_summary": { "kind": "function", "writes": "ibkr_snapshots" },
+              "sync_positions": { "kind": "function", "writes": "ibkr_positions" },
+              "sync_executions": { "kind": "function", "writes": "ibkr_executions" }
+            }
+          }
+        },
+        "output": {
+          "phase": "1",
+          "files": {
+            "reporter.py": {
+              "MarkdownReporter": { "kind": "class", "methods": ["write_hourly", "write_daily"] },
+              "write_hourly_report": { "kind": "function", "output": "reports/YYYY-MM-DD_HH.md" }
+            },
+            "notifier.py": {
+              "Notifier": { "kind": "class", "phase": "5", "channels": ["telegram", "email"] }
+            }
+          }
+        },
+        "storage": {
+          "phase": "0",
+          "files": {
+            "db.py": {
+              "Database": { "kind": "class", "methods": ["connect", "close", "execute", "fetchall"] },
+              "init_db": { "kind": "function" },
+              "get_connection": { "kind": "function", "returns": "sqlite3.Connection" }
+            },
+            "models.py": {
+              "Article": { "kind": "class", "table": "articles" },
+              "Analysis": { "kind": "class", "table": "analyses" },
+              "Suggestion": { "kind": "class", "table": "suggestions" },
+              "ActivityLogEntry": { "kind": "class", "table": "activity_log" },
+              "RunRecord": { "kind": "class", "table": "runs" },
+              "AnalysisResult": { "kind": "class", "pydantic": true },
+              "WouldDo": { "kind": "class", "pydantic": true }
+            },
+            "migrations.py": {
+              "run_migrations": { "kind": "function", "creates": "db_models tables" }
+            }
+          }
+        },
+        "web": {
+          "phase": "2",
+          "files": {
+            "app.py": {
+              "create_app": { "kind": "function", "returns": "FastAPI" },
+              "app": { "kind": "variable", "type": "FastAPI" }
+            },
+            "routes.py": {
+              "handlers": "see api_routes section",
+              "depends_on": ["Database", "Settings"]
+            }
+          }
+        }
+      }
+    },
+    "templates": {
+      "status": "planned",
+      "phase": "2",
+      "files": {
+        "base.html": { "extends": null, "blocks": ["sidebar", "main", "status_panel"] },
+        "dashboard.html": { "extends": "base.html", "mockup_ref": "mockup/dashboard.html" },
+        "portfolio.html": { "phase": "3" },
+        "suggestions.html": { "phase": "2" },
+        "suggestion_detail.html": { "phase": "2" },
+        "article_detail.html": { "phase": "2" },
+        "watchlist.html": { "phase": "2" },
+        "activity.html": { "phase": "2" },
+        "digests.html": { "phase": "4" },
+        "settings.html": { "phase": "2" },
+        "partials/activity_feed.html": { "phase": "2", "purpose": "HTMX auto-refresh fragment" }
+      }
+    },
+    "static": { "status": "planned", "phase": "2", "files": { "style.css": { "source": "extract from mockup/dashboard.html inline styles" } } },
+    "reports": { "status": "planned", "phase": "1", "pattern": "YYYY-MM-DD_HH.md" },
+    "data": { "status": "planned", "phase": "0", "files": { "advisor.db": { "gitignored": true } } },
+    "tests": {
+      "status": "planned",
+      "phase": "1",
+      "files": {
+        "test_deduper.py": { "tests": ["Deduper", "normalize_url", "content_hash"] },
+        "test_rules_engine.py": { "tests": ["RulesEngine", "apply_rules", "detect_conflicts"] },
+        "test_parser.py": { "tests": ["parse_analysis_response", "validate_analysis_json"] },
+        "test_ticker_mapper.py": { "tests": ["TickerMapper", "map_tickers"] }
+      }
+    }
+  },
+  "data_flow": [
+    { "step": 1, "from": "RSS/Finnhub", "via": "RssFetcher.fetch_rss_feeds / FinnhubFetcher.fetch_finnhub_news", "to": "Deduper.filter_new", "store": "articles" },
+    { "step": 2, "from": "articles", "via": "TickerMapper.map_tickers", "to": "OllamaClient.analyze_headline", "store": "analyses" },
+    { "step": 3, "from": "analyses", "via": "RulesEngine.apply_rules", "to": "suggestions", "side_effect": "ActivityLogEntry" },
+    { "step": 4, "from": "suggestions", "via": "MarkdownReporter.write_hourly_report", "to": "reports/" },
+    { "step": 5, "from": "SchedulerService", "triggers": ["schedule_hourly_digest", "schedule_news_poll"] },
+    { "step": 6, "from": "IbkrSyncService.sync_all", "to": ["ibkr_snapshots", "ibkr_positions"], "phase": "3" },
+    { "step": 7, "from": "SQLite", "via": "FastAPI routes", "to": "templates/", "phase": "2" }
+  ],
+  "phases": {
+    "0": { "name": "setup", "status": "not_started", "symbols": ["Database", "init_db", "run_migrations", "Settings", "load_settings", "main"], "deliverable": "python -m src.main --help; DB init" },
+    "1": { "name": "news_suggestions", "status": "not_started", "symbols": ["IngestPipeline", "RssFetcher", "OllamaClient", "RulesEngine", "MarkdownReporter"], "deliverable": "daemon ingests news; structured suggestions" },
+    "2": { "name": "dashboard", "status": "not_started", "symbols": ["create_app", "api_routes", "templates/dashboard.html"], "deliverable": "FastAPI dashboard matching mockup" },
+    "3": { "name": "ibkr_readonly", "status": "not_started", "symbols": ["IbkrConnector", "IbkrSyncService", "IbkrPosition", "IbkrSnapshot"], "deliverable": "live paper P&L; no orders" },
+    "4": { "name": "link_suggestions_positions", "status": "not_started", "symbols": ["SuggestionTrade", "rollup_daily"] },
+    "5": { "name": "enrichment_quality", "status": "not_started", "symbols": ["Notifier"] },
+    "6": { "name": "auto_paper_execution", "status": "not_started" },
+    "7": { "name": "live_opt_in", "status": "future" }
+  },
+  "commands": {
+    "mockup_preview": "cd mockup && python3 -m http.server 8765",
+    "mockup_url": "http://localhost:8765/dashboard.html",
+    "planned_cli": {
+      "help": "python -m src.main --help",
+      "run_once": "python -m src.main run-once",
+      "run_daemon": "python -m src.main run-daemon",
+      "web_server": "uvicorn src.web.app:app --host 0.0.0.0 --port 8080"
+    }
+  },
+  "guardrails": [
+    "paper_only_v1",
+    "no_auto_execution_until_phase_6",
+    "suggestions_not_financial_advice",
+    "validate_llm_json_with_pydantic",
+    "confidence_below_0.6_log_only",
+    "live_account_separate_config_off_by_default"
+  ],
+  "topic_index": {
+    "architecture": ["docs/PLAN.md#3-architecture", "data_flow"],
+    "news_ingestion": ["src/ingest/", "RssFetcher", "FinnhubFetcher", "Deduper"],
+    "ollama_json_schema": ["pydantic_schemas.AnalysisResult", "src/analyze/parser.py"],
+    "rules_engine": ["RulesEngine", "src/suggest/rules_engine.py"],
+    "ibkr_paper": ["IbkrConnector", "IbkrSyncService", "db_models.ibkr_*"],
+    "dashboard_ui": ["mockup_ui", "api_routes", "templates/dashboard.html"],
+    "sqlite_schema": ["db_models"],
+    "config_defaults": ["config/settings.yaml", "Settings"],
+    "pipeline_orchestration": ["IngestPipeline", "SchedulerService", "src/pipeline.py"],
+    "implementation_order": ["phases", "docs/PLAN.md#18"],
+    "agent_workflow": [".instructions", "AGENTS.md", "symbol_index"]
+  },
+  "update_triggers": [
+    "new top-level directory or package added",
+    "file moved or renamed",
+    "new class, function, method, route, or pydantic model added/changed/removed",
+    "phase status changes (not_started → in_progress → done)",
+    "db schema column or table added",
+    "api route added or handler renamed",
+    "mockup section renamed or new UI component added",
+    "symbol signature or responsibility changed"
+  ]
+}
