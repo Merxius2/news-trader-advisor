@@ -13,6 +13,8 @@
       "broker": "bitvavo",
       "asset_class": "crypto_spot",
       "capital_model": "trader_allocation_sub_ledger",
+      "isolation": "tagged_orders",
+      "client_order_id_prefix": "advisor",
       "status": "planning"
     }
   },

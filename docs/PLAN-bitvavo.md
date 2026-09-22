@@ -20,6 +20,7 @@ When creating another fork (e.g. IBKR stocks), copy this table and fill in fork-
 | **News domain** | Crypto / DeFi / regulation / macro | Corporate / earnings / M&A / macro |
 | **Broker API** | Bitvavo REST + WebSocket | IBKR via IB Gateway + ib_async |
 | **Paper trading** | No REST sandbox — read-only key + virtual portfolio | IBKR paper account (port 4002) |
+| **Trade isolation** | **Tagged orders** (`advisor-*` clientOrderId) on personal account | Tagged orders (`orderRef`) or IBKR sub-account |
 | **Quote currency** | EUR (Bitvavo default) | USD / multi-currency |
 | **Market hours** | 24/7 | Exchange session hours |
 | **LLM focus** | Crypto-native prompts & event taxonomy | Finance-equity prompts |
@@ -243,14 +244,23 @@ The advisor **does not control the full Bitvavo account**. It receives a **fixed
 2. **Attribute** every bot fill to the trader sub-ledger.
 3. **Report** trader wins/losses separately from account-level P&L that includes manual activity.
 
-### Two isolation strategies
+### Isolation strategy — **chosen: tagged orders (personal account)**
 
-| Strategy | When to use | How it works |
+**Product owner decision:** use **Strategy B** — single Bitvavo personal account with **tagged orders**. No subaccount required.
+
+| Strategy | Status | How it works |
 |---|---|---|
-| **A — Bitvavo subaccount** (preferred) | Corporate / institutional account with subaccounts enabled | Transfer EUR allocation to a dedicated subaccount via `POST /subaccounts/transfers`; bot API key scoped to subaccount only. Exchange-level separation — cleanest P&L. |
-| **B — Single account + tagged orders** (default for personal accounts) | Standard Bitvavo account, one balance pool | Bot sets `clientOrderId` prefix `advisor-{suggestion_id}` on every order; app maintains internal **TraderLedger** from tagged fills only. Manual trades have no prefix → excluded from trader P&L. |
+| **B — Tagged orders** ✅ **chosen** | Personal Bitvavo account | Bot sets `clientOrderId` prefix `advisor-{suggestion_id}` on every order; **TraderLedger** attributes tagged fills only. Manual trades have no prefix → excluded from trader P&L. |
+| **A — Bitvavo subaccount** | Not used (corporate/institutional only) | Alternative if account type changes later: transfer allocation to subaccount via `POST /subaccounts/transfers`. Same TraderLedger module. |
 
-Both strategies use the same **TraderLedger** module and dashboard views. Strategy A reduces attribution errors; Strategy B works without subaccounts.
+**Why tagged orders for this project:**
+
+- Works on a standard personal Bitvavo account (no corporate onboarding).
+- One API key on the main account — read-only first, trade permission only in Phase 6.
+- Manual DCA and long-term holds stay on the same account without polluting bot stats.
+- `clientOrderId` is returned on fills and in WebSocket order events — reliable attribution filter.
+
+**Implementation requirement:** every bot order and only bot orders use the `advisor-` prefix. Sync and reconciliation code must never infer trader P&L from account balance deltas alone.
 
 ### Trader allocation config
 
@@ -258,9 +268,9 @@ Both strategies use the same **TraderLedger** module and dashboard views. Strate
 trader:
   allocation_eur: 500              # max EUR the bot may deploy (cash + open positions)
   reserve_eur: 50                # keep uninvested as buffer for fees / slippage
-  isolation: tagged_orders         # tagged_orders | subaccount
+  isolation: tagged_orders         # CHOSEN — personal account; subaccount not used
   client_order_id_prefix: advisor  # all bot orders: advisor-{suggestion_id}-{uuid}
-  subaccount_id: null              # set when isolation: subaccount
+  subaccount_id: null              # unused for personal account
   attribution_start: null          # ISO datetime — ignore pre-existing balances; ledger starts here
 ```
 
@@ -387,7 +397,7 @@ Rate limit: **1000 weight points / minute** per IP or API key — budget sync jo
 - Market, trader qty, avg cost, EUR value
 - Trader unrealized P&L per position
 - Linked suggestion (action tag + headline snippet)
-- Tag: `advisor-*` or subaccount
+- Tag: `advisor-*` (required on all bot fills)
 
 **Per account holding (read-only reference):**
 
@@ -552,7 +562,7 @@ virtual_fills           — id, suggestion_id, market, side, price, amount, simu
 
 ### Phase 6 — Optional auto spot execution (explicit opt-in)
 
-- Requires Trade permission on API key (separate key from read-only; subaccount key if Strategy A)
+- Requires Trade permission on API key (separate key from read-only; same personal account)
 - High-confidence suggestions → limit/market orders on Bitvavo
 - **Every order tagged** with `clientOrderId: advisor-{suggestion_id}-{uuid}`
 - **Allocation enforced** before submit: refuse if order would exceed `trader.allocation_eur`
@@ -638,9 +648,9 @@ bitvavo:
 trader:
   allocation_eur: 500             # max EUR bot may deploy
   reserve_eur: 50                 # cash buffer within allocation
-  isolation: tagged_orders        # tagged_orders | subaccount
+  isolation: tagged_orders        # CHOSEN — personal account, advisor-* clientOrderId
   client_order_id_prefix: advisor
-  subaccount_id: null             # UUID when isolation: subaccount
+  subaccount_id: null             # unused
   attribution_start: null         # set on first ledger init (ISO datetime)
 
 virtual_portfolio:
@@ -709,10 +719,13 @@ server:
 
 - **Initial watchlist** — suggested starter: `BTC-EUR`, `ETH-EUR`, `SOL-EUR`, `XRP-EUR`, `ADA-EUR`
 - **Trader allocation** — starting EUR budget (suggested: €500); reserve buffer (€50)?
-- **Isolation strategy** — subaccount (if corporate) vs tagged orders on personal account?
 - **Attribution start** — fund allocation fresh vs import historical tagged trades?
 - **News sources** — RSS-only first or CryptoCompare from day one?
 - **Execution** — read-only only forever, or Phase 6 auto spot within allocation only?
+
+**Decided:**
+
+- **Isolation:** tagged orders on personal account (`advisor-*` `clientOrderId`) — see [§6](#6-trader-allocation--sub-ledger-core-product-requirement)
 - **Language** — English-only crypto news or include Dutch sources (Bitvavo is NL-based)?
 - **Repo layout** — separate git repo vs `forks/bitvavo/` in monorepo?
 
