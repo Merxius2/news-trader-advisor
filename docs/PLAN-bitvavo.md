@@ -20,12 +20,14 @@ When creating another fork (e.g. IBKR stocks), copy this table and fill in fork-
 | **News domain** | Crypto / DeFi / regulation / macro | Corporate / earnings / M&A / macro |
 | **Broker API** | Bitvavo REST + WebSocket | IBKR via IB Gateway + ib_async |
 | **Paper trading** | No REST sandbox — read-only key + virtual portfolio | IBKR paper account (port 4002) |
+| **Trade isolation** | **Tagged orders** (`advisor-*` clientOrderId) on personal account | Tagged orders (`orderRef`) or IBKR sub-account |
 | **Quote currency** | EUR (Bitvavo default) | USD / multi-currency |
 | **Market hours** | 24/7 | Exchange session hours |
 | **LLM focus** | Crypto-native prompts & event taxonomy | Finance-equity prompts |
 | **Connector package** | `src/bitvavo/` | `src/ibkr/` |
-| **Sync tables** | `bitvavo_balances`, `bitvavo_trades`, `bitvavo_snapshots` | `ibkr_positions`, `ibkr_executions`, … |
-| **Dashboard badge** | "Advisory only — Bitvavo read-only" | "Paper account — no real money" |
+| **Sync tables** | `bitvavo_balances`, `bitvavo_trades`, `trader_*` sub-ledger | `ibkr_positions`, `ibkr_executions`, … |
+| **Capital model** | Small **trader allocation** on shared account; sub-ledger P&L | Small allocation / sub-account on paper |
+| **Dashboard badge** | "Trader allocation — read-only" | "Paper account — no real money" |
 
 ### Shared pipeline (identical across forks)
 
@@ -63,8 +65,10 @@ Crypto News Advisor is a local tool for a mini-PC that:
 - Ingests **crypto news** (hourly batch + poll on new headlines)
 - Analyzes headlines with Ollama using **crypto-focused prompts**
 - Produces spot-trading suggestions (`BTC-EUR`, `ETH-EUR`, …) with full reasoning — **not auto-executed in v1**
-- Connects to **Bitvavo read-only API** for balances, trades, and EUR-denominated P&L
-- Shows everything on a web dashboard — activity, watchlist, suggestions, reasoning, portfolio value
+- Connects to **Bitvavo read-only API** for account balances and trade history
+- Operates on a **small trader allocation** (EUR budget) while the rest of the Bitvavo account stays for manual holdings
+- Maintains a **trader sub-ledger** — tracks only bot-attributed transactions and P&L, separate from manual wins/losses on the same account
+- Shows everything on a web dashboard — activity, watchlist, suggestions, reasoning, **trader P&L vs account P&L**
 
 **Explicit non-goals for early phases:**
 
@@ -84,8 +88,10 @@ Crypto News Advisor is a local tool for a mini-PC that:
 | See crypto news analyzed every hour and when new headlines arrive | I don't miss market-moving events (hacks, ETF flows, regulation) |
 | See why the model suggests buy/sell/hold on a **market pair** | I can judge crypto-specific reasoning myself |
 | Manage a watchlist of Bitvavo markets | Analysis focuses on coins I hold or watch |
-| See portfolio value and P&L in EUR from Bitvavo | I know how my spot holdings are doing |
-| See each balance linked to the suggestion that motivated it | I connect news → decision → outcome |
+| Cap the trader at a small EUR allocation (e.g. €500) | Most of my Bitvavo balance stays untouched for manual trades |
+| See **trader P&L** (bot trades only) separately from **account P&L** (everything on Bitvavo) | I know if the advisor is winning without mixing in my manual buys |
+| See each trader position linked to the suggestion that opened it | I connect news → decision → outcome |
+| See when manual activity on the same asset affects account totals but not trader attribution | Deposits, manual buys, and airdrops don't corrupt bot performance stats |
 | Watch a live activity feed | I trust the system is running 24/7 |
 | Start with read-only Bitvavo access | Real balances visible but no accidental trades |
 
@@ -109,6 +115,8 @@ Crypto News Advisor is a local tool for a mini-PC that:
 │       ↓                                                      │
 │  FastAPI backend + Web dashboard                            │
 │       ↕ sync every 30–60s (read-only)                       │
+│  Trader sub-ledger (allocation, tagged fills, trader P&L)   │
+│       ↕                                                      │
 │  Bitvavo REST API ← python-bitvavo-api or httpx client      │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -228,7 +236,112 @@ Validate with Pydantic (`CryptoAnalysisResult`); retry once on parse failure.
 
 ---
 
-## 6. Bitvavo integration
+## 6. Trader allocation & sub-ledger (core product requirement)
+
+The advisor **does not control the full Bitvavo account**. It receives a **fixed EUR allocation** (e.g. €500) to trade within. The user may hold much more on the same account for manual investing. The system must:
+
+1. **Enforce** the allocation cap when placing orders (Phase 6).
+2. **Attribute** every bot fill to the trader sub-ledger.
+3. **Report** trader wins/losses separately from account-level P&L that includes manual activity.
+
+### Isolation strategy — **chosen: tagged orders (personal account)**
+
+**Product owner decision:** use **Strategy B** — single Bitvavo personal account with **tagged orders**. No subaccount required.
+
+| Strategy | Status | How it works |
+|---|---|---|
+| **B — Tagged orders** ✅ **chosen** | Personal Bitvavo account | Bot sets `clientOrderId` prefix `advisor-{suggestion_id}` on every order; **TraderLedger** attributes tagged fills only. Manual trades have no prefix → excluded from trader P&L. |
+| **A — Bitvavo subaccount** | Not used (corporate/institutional only) | Alternative if account type changes later: transfer allocation to subaccount via `POST /subaccounts/transfers`. Same TraderLedger module. |
+
+**Why tagged orders for this project:**
+
+- Works on a standard personal Bitvavo account (no corporate onboarding).
+- One API key on the main account — read-only first, trade permission only in Phase 6.
+- Manual DCA and long-term holds stay on the same account without polluting bot stats.
+- `clientOrderId` is returned on fills and in WebSocket order events — reliable attribution filter.
+
+**Implementation requirement:** every bot order and only bot orders use the `advisor-` prefix. Sync and reconciliation code must never infer trader P&L from account balance deltas alone.
+
+### Trader allocation config
+
+```yaml
+trader:
+  allocation_eur: 500              # max EUR the bot may deploy (cash + open positions)
+  reserve_eur: 50                # keep uninvested as buffer for fees / slippage
+  isolation: tagged_orders         # CHOSEN — personal account; subaccount not used
+  client_order_id_prefix: advisor  # all bot orders: advisor-{suggestion_id}-{uuid}
+  subaccount_id: null              # unused for personal account
+  attribution_start: null          # ISO datetime — ignore pre-existing balances; ledger starts here
+```
+
+On first run (Phase 4+), record **opening snapshot**: EUR cash assigned to trader + zero positions. Pre-existing manual holdings on the same assets are **not** part of trader cost basis.
+
+### Sub-ledger rules (TraderLedger)
+
+The sub-ledger is the **source of truth for bot performance**. Implement in `src/bitvavo/trader_ledger.py`.
+
+| Rule | Behavior |
+|---|---|
+| **Tagged fill → ledger entry** | Every fill whose `clientOrderId` matches prefix → `trader_fills` row linked to `suggestion_id` |
+| **Untagged fill → account only** | Sync to `bitvavo_trades` but **never** to trader P&L |
+| **Allocation cap** | Before order: `trader_deployed_eur + order_notional ≤ allocation_eur` |
+| **Position cost basis** | FIFO (or avg cost) **per market, trader scope only** |
+| **Realized P&L** | On sell fill: proceeds − cost basis − fees (trader fills only) |
+| **Unrealized P&L** | Mark trader holdings to market; ignore manual holdings in same asset |
+| **Manual deposit to same asset** | Account balance ↑, trader allocation unchanged — log as `external_event` |
+| **Manual buy of BTC while trader holds BTC** | Account BTC ↑; trader BTC qty unchanged — no P&L impact on trader |
+| **Reconciliation drift** | If account sync shows tagged order without ledger entry → backfill; if ledger exceeds allocation → halt trading + alert |
+
+### P&L attribution (three layers)
+
+Always show three layers on dashboard — never conflate them:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ACCOUNT TOTAL (Bitvavo)                                     │
+│  Full balance + all trades — manual + bot                    │
+├─────────────────────────────────────────────────────────────┤
+│  NON-TRADER (derived)                                        │
+│  account_total − trader_portfolio_value − trader_cash        │
+│  = manual holdings + untagged activity                       │
+├─────────────────────────────────────────────────────────────┤
+│  TRADER ALLOCATION (sub-ledger)                              │
+│  Realized P&L + unrealized P&L + cash within allocation cap   │
+│  Only tagged fills + suggestion links                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Formulas:**
+
+- `trader_portfolio_eur` = trader cash + Σ(trader_qty × mark_price)
+- `trader_realized_pnl` = Σ(sell proceeds − buy cost − fees) for tagged round-trips
+- `trader_unrealized_pnl` = trader_portfolio_eur − trader_net_deposits (within allocation)
+- `non_trader_eur` = `account_total_eur − trader_portfolio_eur` (informational — not bot performance)
+
+### Order tagging (Strategy B)
+
+Every bot-placed order **must** include:
+
+```json
+{
+  "clientOrderId": "advisor-sugg-42-a1b2c3d4",
+  "operatorId": 1
+}
+```
+
+Sync job filters: `clientOrderId.startsWith("advisor-")` → trader ledger. WebSocket `account` channel tracks fills with same filter.
+
+### Phase 4 virtual portfolio alignment
+
+The virtual portfolio (pre-execution backtest) uses the **same allocation rules** as live trading — same cap, same ledger schema with `source: virtual | bitvavo`. Lets you compare virtual vs live trader P&L before enabling Phase 6.
+
+### Reusable in IBKR fork
+
+Same pattern applies to stocks: **allocation cap** + **tagged orders** (IBKR `orderRef` field) or **linked IBKR sub-account** + sub-ledger. Swap `clientOrderId` → `orderRef`, `BTC-EUR` → `NVDA`.
+
+---
+
+## 7. Bitvavo integration
 
 ### Setup
 
@@ -265,35 +378,51 @@ Rate limit: **1000 weight points / minute** per IP or API key — budget sync jo
 
 ### P&L dashboard requirements
 
-**Summary cards:**
+**Trader allocation cards (primary — bot performance):**
 
-- Portfolio value (EUR) — sum of holdings at last sync
-- 24h change (EUR and %)
-- Unrealized P&L estimate (cost basis from linked trades or manual avg)
-- Realized P&L (from Bitvavo trade history)
+- Trader portfolio value (EUR) — within allocation cap
+- Allocation used / remaining (e.g. €420 / €500)
+- Trader realized P&L (tagged fills only)
+- Trader unrealized P&L (trader positions only)
+- Trader win rate / trade count (optional Phase 5+)
 
-**Per holding:**
+**Account overview cards (secondary — full Bitvavo account):**
 
-- Market / asset, available qty, in-order qty
-- EUR value, 24h change
+- Account total (EUR) — all holdings including manual
+- Non-trader value (derived) — manual portion not attributed to bot
+- 24h account change — informational only
+
+**Per trader holding (sub-ledger scope):**
+
+- Market, trader qty, avg cost, EUR value
+- Trader unrealized P&L per position
 - Linked suggestion (action tag + headline snippet)
+- Tag: `advisor-*` (required on all bot fills)
+
+**Per account holding (read-only reference):**
+
+- Full Bitvavo balance — may exceed trader qty on same asset
+- Badge: "manual" when account qty > trader qty
 
 **Status panel:**
 
 - Bitvavo API connected (last sync time)
+- Trader allocation: €X / €Y deployed
 - Ollama model name
 - Last news poll / next hourly run
+- Reconciliation status (OK / drift detected)
 
 ---
 
-## 7. Dashboard
+## 8. Dashboard
 
-Reuse layout from [`mockup/dashboard.html`](../mockup/dashboard.html) with crypto labels:
+Static mockup: [`mockup/dashboard-bitvavo.html`](../mockup/dashboard-bitvavo.html) — dark theme, sample data, trader allocation UI.
 
 | Page | Content |
 |---|---|
-| Dashboard (home) | Portfolio cards, holdings table, latest suggestions, activity feed, watchlist |
-| Portfolio | All balances, trade history, cumulative EUR value chart |
+| Dashboard (home) | **Trader P&L cards**, trader holdings, account total (collapsed), suggestions, activity |
+| Trader portfolio | Sub-ledger positions, tagged trade history, realized/unrealized P&L chart |
+| Account overview | Full Bitvavo balances (manual + bot), non-trader breakdown |
 | Suggestions | Filters by market, action, confidence, event_type, date |
 | Article detail | Headline, source, base assets, model JSON, rationale |
 | Watchlist | Bitvavo markets (`BTC-EUR`), notes, current signal |
@@ -303,13 +432,14 @@ Reuse layout from [`mockup/dashboard.html`](../mockup/dashboard.html) with crypt
 
 **UI elements:**
 
-- **"Advisory only — read-only Bitvavo"** badge (always visible)
+- **"Trader allocation €X — not full account"** badge (always visible)
+- Clear visual split: trader section vs account-total section
 - Buttons: "Run news now", "Sync Bitvavo"
 - Reasoning block per suggestion (primary requirement)
 
 ---
 
-## 8. Database schema (SQLite)
+## 9. Database schema (SQLite)
 
 Shared tables (same as IBKR fork):
 
@@ -321,20 +451,32 @@ activity_log   — id, timestamp, level, message
 runs           — id, type (hourly|trigger|daily), started_at, finished_at, articles_processed
 ```
 
-Bitvavo-specific (Phase 3+):
+Bitvavo account sync (Phase 3+):
 
 ```
-bitvavo_snapshots  — time, portfolio_eur, synced_at
-bitvavo_balances   — symbol, available, in_order, eur_value, synced_at
-bitvavo_trades     — trade_id, market, side, price, amount, fee, timestamp
-suggestion_trades  — links suggestion_id ↔ bitvavo trade_id or virtual_fill_id
-virtual_fills      — id, suggestion_id, market, side, price, amount, simulated_at  (Phase 4)
-bitvavo_markets_cache — market, base, quote, status, updated_at  (daily refresh)
+bitvavo_snapshots       — time, account_total_eur, synced_at
+bitvavo_balances        — symbol, available, in_order, eur_value, synced_at
+bitvavo_trades          — trade_id, market, side, price, amount, fee, timestamp, client_order_id, is_trader_tagged
+bitvavo_markets_cache   — market, base, quote, status, updated_at
 ```
+
+Trader sub-ledger (Phase 4+ — core for allocation tracking):
+
+```
+trader_config           — allocation_eur, reserve_eur, isolation_mode, attribution_start, subaccount_id
+trader_snapshots        — time, cash_eur, portfolio_eur, realized_pnl, unrealized_pnl, deployed_eur
+trader_positions        — market, qty, avg_cost_eur, opened_at, last_sync
+trader_fills            — fill_id, order_id, client_order_id, suggestion_id, market, side, qty, price, fee, source (virtual|bitvavo), timestamp
+trader_ledger_events    — id, type (fill|deposit|withdraw|reconcile|external), amount_eur, note, timestamp
+suggestion_trades       — links suggestion_id ↔ trader_fill_id or bitvavo trade_id
+virtual_fills           — id, suggestion_id, market, side, price, amount, simulated_at (same rules as trader_fills)
+```
+
+**Key invariant:** `trader_fills` is the only table used for bot P&L. `bitvavo_trades` is the full account mirror for reconciliation.
 
 ---
 
-## 9. Learning over time (future — not v1)
+## 10. Learning over time (future — not v1)
 
 | Approach | Phase | Notes |
 |---|---|---|
@@ -348,13 +490,14 @@ bitvavo_markets_cache — market, base, quote, status, updated_at  (daily refres
 
 ---
 
-## 10. Implementation phases
+## 11. Implementation phases
 
 ### Phase 0 — Setup
 
 - Python venv, project structure, config (YAML + `.env`)
 - Ollama installed + models pulled
-- SQLite schema + migrations (including Bitvavo tables stubbed)
+- SQLite schema + migrations (Bitvavo + trader sub-ledger tables stubbed)
+- Trader allocation config in `settings.yaml`
 - Watchlist config (`config/watchlist.yaml`) with Bitvavo markets
 - Crypto news sources config (`config/sources.yaml`)
 - `prompts_crypto.py` skeleton
@@ -383,30 +526,35 @@ bitvavo_markets_cache — market, base, quote, status, updated_at  (daily refres
 
 **Deliverable:** New headline → analysis within ~5 min; visible on dashboard.
 
-### Phase 3 — Bitvavo read-only + portfolio
+### Phase 3 — Bitvavo read-only + account overview
 
 - Bitvavo REST client (HMAC auth)
-- Sync job every 30–60s: balances, recent trades, EUR portfolio value
-- Dashboard: portfolio summary cards + holdings table
+- Sync job every 30–60s: full account balances, recent trades (with `clientOrderId`), account total EUR
+- Dashboard: account overview cards (informational — not yet trader-attributed)
 - Read-only API key enforced in config (`bitvavo.readonly: true`)
+- Detect and flag pre-existing tagged vs untagged trades in history
 
-**Deliverable:** Dashboard shows live Bitvavo balances and EUR value; **no orders placed**.
+**Deliverable:** Dashboard shows full Bitvavo account; **no orders placed**; trade tagging visible.
 
-### Phase 4 — Link suggestions ↔ holdings
+### Phase 4 — Trader sub-ledger + suggestion linking
 
-- Manual tagging: suggestion → Bitvavo trade
-- **Virtual portfolio**: simulate fills from suggestions for backtesting
-- Per-holding "linked suggestion" column with reasoning drill-down
+- **TraderLedger** module: allocation cap, opening snapshot, tagged-fill attribution
+- Virtual fills use same ledger rules (`source: virtual`)
+- Dashboard: **trader P&L cards** separate from account total; non-trader derived row
+- Manual tagging fallback: link untagged historical trade → suggestion (one-time import)
+- Per-trader-position "linked suggestion" column with reasoning drill-down
+- Reconciliation job: ledger vs Bitvavo tagged fills; drift alerts
 - Hourly rollup per market (conflict detection)
-- Daily summary digest
+- Daily summary digest (trader P&L section + account summary section)
 
-**Deliverable:** Each holding can show why it's held; virtual P&L trackable.
+**Deliverable:** Trader wins/losses tracked independently of manual activity on same account.
 
 ### Phase 5 — Enrichment + quality
 
 - Inject 24h price change from Bitvavo ticker into prompts ("BTC already +6% today")
 - Backtest suggestions vs next-24h / 7d price on Bitvavo
-- Accuracy scoring per event_type
+- Accuracy scoring per event_type on **trader sub-ledger** (not account total)
+- Trader performance report: win rate, avg gain/loss, allocation utilization
 - Optional Telegram/email alerts for high-confidence watchlist hits
 - RAG: similar past crypto cases in prompt
 
@@ -414,13 +562,16 @@ bitvavo_markets_cache — market, base, quote, status, updated_at  (daily refres
 
 ### Phase 6 — Optional auto spot execution (explicit opt-in)
 
-- Requires Trade permission on API key (separate key from read-only)
+- Requires Trade permission on API key (separate key from read-only; same personal account)
 - High-confidence suggestions → limit/market orders on Bitvavo
-- Hard limits: max EUR per order, max orders/day, min confidence, allowed markets only
-- Full audit log: suggestion id + headline + reasoning + bitvavo order id
-- Kill switch in config and dashboard
+- **Every order tagged** with `clientOrderId: advisor-{suggestion_id}-{uuid}`
+- **Allocation enforced** before submit: refuse if order would exceed `trader.allocation_eur`
+- Hard limits: max EUR per order, max orders/day, min confidence, allowed markets only, reserve cash floor
+- Fill → immediate `trader_fills` ledger entry + suggestion link
+- Full audit log: suggestion id + headline + reasoning + bitvavo order id + ledger entry id
+- Kill switch in config and dashboard; halt on reconciliation drift
 
-**Deliverable:** Automated spot trading pipeline with guardrails — **off by default**.
+**Deliverable:** Bot trades only within allocation; P&L attributable; manual account activity excluded.
 
 ### Phase 7 — Future
 
@@ -431,7 +582,7 @@ bitvavo_markets_cache — market, base, quote, status, updated_at  (daily refres
 
 ---
 
-## 11. Project structure (target)
+## 12. Project structure (target)
 
 ```
 crypto-advisor-bitvavo/          # or subfolder of monorepo: forks/bitvavo/
@@ -446,7 +597,7 @@ crypto-advisor-bitvavo/          # or subfolder of monorepo: forks/bitvavo/
 │   ├── enrich/                  # market_mapper (base asset → BTC-EUR)
 │   ├── analyze/                 # ollama_client, prompts_crypto.py, parser
 │   ├── suggest/                 # rules_engine, rollup
-│   ├── bitvavo/                 # connector, sync, auth (Phase 3+)
+│   ├── bitvavo/                 # connector, sync, trader_ledger, auth (Phase 3+)
 │   ├── output/                  # reporter, notifier
 │   ├── storage/                 # db, models (CryptoAnalysisResult)
 │   └── web/                     # FastAPI routes, templates
@@ -463,7 +614,7 @@ crypto-advisor-bitvavo/          # or subfolder of monorepo: forks/bitvavo/
 
 ---
 
-## 12. Config defaults (suggested)
+## 13. Config defaults (suggested)
 
 ```yaml
 schedule:
@@ -494,9 +645,17 @@ bitvavo:
   quote_currency: EUR
   # API key/secret from .env — never in YAML
 
+trader:
+  allocation_eur: 500             # max EUR bot may deploy
+  reserve_eur: 50                 # cash buffer within allocation
+  isolation: tagged_orders        # CHOSEN — personal account, advisor-* clientOrderId
+  client_order_id_prefix: advisor
+  subaccount_id: null             # unused
+  attribution_start: null         # set on first ledger init (ISO datetime)
+
 virtual_portfolio:
-  enabled: true                   # Phase 4+ — track hypothetical fills
-  initial_eur: 10000
+  enabled: true                   # Phase 4+ — uses same TraderLedger rules
+  # initial_eur derived from trader.allocation_eur — do not exceed allocation
 
 server:
   host: 0.0.0.0
@@ -505,7 +664,7 @@ server:
 
 ---
 
-## 13. Guardrails & compliance
+## 14. Guardrails & compliance
 
 - Every suggestion: "Advisory only — not financial advice — not executed"
 - **Read-only API key** for Phases 3–5; separate trade key for Phase 6
@@ -515,12 +674,15 @@ server:
 - Rate-limit news and Bitvavo calls; respect ToS
 - Log raw headlines + model output for audit
 - Max EUR per order / max orders per day even in Phase 6
+- **Never exceed trader allocation** — hard block in rules engine + pre-order check
+- **Never attribute untagged fills** to trader P&L
+- Halt trading on reconciliation drift until user acknowledges
 - Crypto volatility disclaimer on dashboard
 - MiCA / local regulation: user responsible for tax and compliance — tool is informational only
 
 ---
 
-## 14. Hardware notes (mini-PC)
+## 15. Hardware notes (mini-PC)
 
 - Qwen2.5:7b or Finance-Llama-8B Q4: ~6–8 GB RAM
 - One headline per Ollama call; cap ~30 articles/hour
@@ -528,53 +690,60 @@ server:
 
 ---
 
-## 15. Existing assets to reuse
+## 16. Existing assets to reuse
 
 | Asset | Location | Adapt for Bitvavo fork |
 |---|---|---|
-| Dashboard mockup layout | `mockup/dashboard.html` | Relabel stocks → crypto markets, EUR formatting |
+| Dashboard mockup | `mockup/dashboard-bitvavo.html` | Trader allocation bar, dual P&L rows, crypto markets |
 | Agent workflow | `.instructions`, `docs/repo-map.json` | Add fork entry in repo map |
 | Deployment scripts | `scripts/` | Same mini-PC sync flow |
 | IBKR plan (reference) | `docs/PLAN.md` | Parallel structure for stock fork |
 
 ---
 
-## 16. Success criteria (v1 complete)
+## 17. Success criteria (v1 complete)
 
 - [ ] Daemon runs 24/7 without crashing
 - [ ] New crypto articles detected within 5 min or at next hourly run
 - [ ] Each article produces valid `CryptoAnalysisResult` JSON
 - [ ] Dashboard shows suggestions with full crypto-specific reasoning
-- [ ] Bitvavo read-only sync shows balances and EUR portfolio value
+- [ ] Bitvavo read-only sync shows full account + trader allocation separately
+- [ ] Trader sub-ledger P&L excludes manual trades on same account
+- [ ] Allocation cap enforced before any Phase 6 order
 - [ ] Zero automatic orders in Phases 0–5
-- [ ] User can review a week of logs and judge usefulness
+- [ ] User can review a week of trader logs and judge bot performance vs manual holdings
 
 ---
 
-## 17. Open decisions for product owner
+## 18. Open decisions for product owner
 
 - **Initial watchlist** — suggested starter: `BTC-EUR`, `ETH-EUR`, `SOL-EUR`, `XRP-EUR`, `ADA-EUR`
+- **Trader allocation** — starting EUR budget (suggested: €500); reserve buffer (€50)?
+- **Attribution start** — fund allocation fresh vs import historical tagged trades?
 - **News sources** — RSS-only first or CryptoCompare from day one?
-- **Virtual portfolio** — enable from Phase 4 or earlier for backtesting without Bitvavo?
-- **Execution** — read-only only forever, or Phase 6 auto spot with small EUR limits?
+- **Execution** — read-only only forever, or Phase 6 auto spot within allocation only?
+
+**Decided:**
+
+- **Isolation:** tagged orders on personal account (`advisor-*` `clientOrderId`) — see [§6](#6-trader-allocation--sub-ledger-core-product-requirement)
 - **Language** — English-only crypto news or include Dutch sources (Bitvavo is NL-based)?
 - **Repo layout** — separate git repo vs `forks/bitvavo/` in monorepo?
 
 ---
 
-## 18. Recommended build order for the agent
+## 19. Recommended build order for the agent
 
 1. **Phase 0 + 1** — backend, crypto news ingest, Ollama + crypto prompts, SQLite, CLI reports
 2. **Phase 2** — FastAPI dashboard (adapt mockup); activity + suggestions + watchlist
-3. **Phase 3** — Bitvavo read-only sync; portfolio cards + holdings table
-4. **Phase 4** — link suggestions to trades; virtual portfolio; digests
-5. **Phase 5+** — price enrichment, backtest scoring, alerts, optional auto execution
+3. **Phase 3** — Bitvavo read-only sync; account overview
+4. **Phase 4** — **TraderLedger** + trader P&L vs account P&L; virtual fills; digests
+5. **Phase 5+** — price enrichment, trader backtest scoring, alerts, optional execution within allocation
 
-**Do not skip:** structured JSON schema, crypto-specific prompts, rules engine, read-only guardrails, and reasoning visibility on every suggestion.
+**Do not skip:** trader sub-ledger, allocation cap, order tagging, structured JSON schema, crypto-specific prompts, rules engine, and reasoning visibility on every suggestion.
 
 ---
 
-## 19. Spinning up the IBKR fork from this template
+## 20. Spinning up the IBKR fork from this template
 
 To reuse this plan for the stock/IBKR variant:
 
@@ -582,11 +751,11 @@ To reuse this plan for the stock/IBKR variant:
 2. Swap [§0 Fork profile](#0-fork-profile-reusable-template) column values to IBKR.
 3. Replace §4 news sources with equity RSS / Finnhub.
 4. Replace §5 schema with equity `AnalysisResult` (tickers, not markets).
-5. Replace §6 broker section with IBKR paper / ib_async.
-6. Rename `src/bitvavo/` → `src/ibkr/`; adjust DB tables accordingly.
+5. Replace §7 broker section with IBKR paper / ib_async.
+6. Rename `src/bitvavo/` → `src/ibkr/`; keep **TraderLedger** pattern (`orderRef` tagging).
 7. Restore paper-trading guardrails (IBKR port 4002).
 
-Both forks share: ingest, dedupe, scheduler, rules engine pattern, dashboard shell, activity feed, phase numbering, and agent workflow.
+Both forks share: ingest, dedupe, scheduler, rules engine, **trader allocation + sub-ledger**, dashboard shell, activity feed, phase numbering, and agent workflow.
 
 ---
 

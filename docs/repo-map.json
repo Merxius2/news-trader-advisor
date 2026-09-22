@@ -12,6 +12,9 @@
       "plan": "docs/PLAN-bitvavo.md",
       "broker": "bitvavo",
       "asset_class": "crypto_spot",
+      "capital_model": "trader_allocation_sub_ledger",
+      "isolation": "tagged_orders",
+      "client_order_id_prefix": "advisor",
       "status": "planning"
     }
   },
@@ -224,6 +227,20 @@
     }
   },
   "mockup_ui": {
+    "ibkr": {
+      "file": "mockup/dashboard.html",
+      "fork": "ibkr_stocks",
+      "plan": "docs/PLAN.md",
+      "status": "exists",
+      "phase": "done"
+    },
+    "bitvavo": {
+      "file": "mockup/dashboard-bitvavo.html",
+      "fork": "bitvavo_crypto",
+      "plan": "docs/PLAN-bitvavo.md",
+      "status": "exists",
+      "phase": "done"
+    },
     "file": "mockup/dashboard.html",
     "status": "exists",
     "phase": "done",
@@ -253,6 +270,18 @@
     "maps_to_templates": {
       "templates/dashboard.html": "primary target for phase 2 — replicate mockup layout",
       "templates/base.html": "shared sidebar, status panel, paper badge"
+    },
+    "bitvavo_sections": [
+      { "selector": ".trader-badge", "purpose": "trader allocation cap badge in sidebar" },
+      { "selector": ".allocation-bar-wrap", "purpose": "deployed EUR vs allocation cap progress bar" },
+      { "selector": ".pnl-grid.highlight-section", "purpose": "trader P&L cards — bot performance only" },
+      { "selector": ".pnl-grid.account", "purpose": "account total row — manual + bot informational" },
+      { "selector": ".tag-advisor", "purpose": "advisor-* order tag on trader fills" },
+      { "selector": ".account-note", "purpose": "manual holdings on same account excluded from trader qty" }
+    ],
+    "bitvavo_maps_to_templates": {
+      "templates/dashboard.html": "Bitvavo fork phase 2 — replicate dashboard-bitvavo.html layout",
+      "templates/base.html": "shared sidebar, trader badge, allocation status panel"
     }
   },
   "tree": {
@@ -298,9 +327,14 @@
       "phase": "done",
       "files": {
         "dashboard.html": {
-          "purpose": "static dashboard UI reference",
-          "symbols": "see mockup_ui section",
-          "read_when": "ui_work"
+          "purpose": "IBKR/stocks dashboard UI reference",
+          "symbols": "see mockup_ui.ibkr",
+          "read_when": "ui_work_ibkr"
+        },
+        "dashboard-bitvavo.html": {
+          "purpose": "Bitvavo/crypto dashboard UI — trader allocation + sub-ledger",
+          "symbols": "see mockup_ui.bitvavo + mockup_ui.bitvavo_sections",
+          "read_when": "ui_work_bitvavo"
         },
         "README.md": { "purpose": "serve mockup locally", "read_when": "preview_ui" }
       }
@@ -547,6 +581,7 @@
     "deploy_trigger_logs": "journalctl -u news-trader-advisor-deploy.service -n 20",
     "mockup_preview": "cd mockup && python3 -m http.server 8765",
     "mockup_url": "http://localhost:8765/dashboard.html",
+    "mockup_bitvavo_url": "http://localhost:8765/dashboard-bitvavo.html",
     "planned_cli": {
       "help": "python -m src.main --help",
       "run_once": "python -m src.main run-once",
@@ -569,13 +604,16 @@
     "rules_engine": ["RulesEngine", "src/suggest/rules_engine.py"],
     "ibkr_paper": ["IbkrConnector", "IbkrSyncService", "db_models.ibkr_*"],
     "dashboard_ui": ["mockup_ui", "api_routes", "templates/dashboard.html"],
+    "bitvavo_dashboard_ui": ["mockup_ui.bitvavo", "mockup_ui.bitvavo_sections", "docs/PLAN-bitvavo.md#8-dashboard"],
     "sqlite_schema": ["db_models"],
     "config_defaults": ["config/settings.yaml", "Settings"],
     "pipeline_orchestration": ["IngestPipeline", "SchedulerService", "src/pipeline.py"],
     "implementation_order": ["phases", "docs/PLAN.md#18", "forks"],
     "bitvavo_fork": ["docs/PLAN-bitvavo.md", "forks.bitvavo_crypto"],
     "crypto_news": ["docs/PLAN-bitvavo.md#4-crypto-news-ingestion"],
-    "bitvavo_api": ["docs/PLAN-bitvavo.md#6-bitvavo-integration"],
+    "bitvavo_api": ["docs/PLAN-bitvavo.md#7-bitvavo-integration"],
+    "trader_allocation": ["docs/PLAN-bitvavo.md#6-trader-allocation--sub-ledger-core-product-requirement"],
+    "trader_sub_ledger": ["docs/PLAN-bitvavo.md#6-trader-allocation--sub-ledger-core-product-requirement", "trader_allocation"],
     "agent_workflow": [".instructions", "AGENTS.md", "symbol_index"],
     "mini_pc_deployment": ["deployment", "docs/mini-pc.md", "scripts/sync-mini-pc.sh", "scripts/clone-on-mini-pc.sh"]
   },
